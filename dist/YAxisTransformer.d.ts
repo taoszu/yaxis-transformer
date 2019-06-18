@@ -1,4 +1,12 @@
+/**
+ * 基准值生成策略
+ */
 export declare type Strategy = (interval: number) => number[];
+/**
+ * 格式化数据的规则
+ * 应用于对四舍五入精度有要求的场景
+ */
+export declare type FormatRuler = (data: number, decimal: number) => string;
 export declare type Unit = {
     range: number;
     unit: string;
@@ -9,12 +17,22 @@ export declare type TransformResult = {
     adviseDecimal: number;
 };
 export declare class YAxisTransformer {
+    defaultBaseGenStrategy: (originInterval: number) => number[];
+    defaultFormatRuler: (data: number, decimal: number) => string;
+    defaultUnitSet: {
+        range: number;
+        unit: string;
+    }[];
     private maxData;
     private minData;
     /**
      *  基准值生成策略
      */
     private baseGenStrategy;
+    /**
+     * 格式化数据的规则
+     */
+    private formatRuler;
     /**
      *  生成间距数目
      */
@@ -41,6 +59,9 @@ export declare class YAxisTransformer {
      * 强制小数位数
      */
     private forceDecimal;
+    /**
+     * 是否使用百分比
+     */
     private usePercentUnit;
     constructor(values?: number[]);
     withCount(count: number): this;
@@ -48,6 +69,7 @@ export declare class YAxisTransformer {
     withPercentUnit(): this;
     withMinMaxData(minData: number, maxData: number): this;
     withBaseGenStrategy(baseGenStrategy: Strategy): this;
+    withFormatRuler(formatRuler: FormatRuler): this;
     withForceDecimal(decimal: number): this;
     withKeepZeroUnit(keepZeroUnit: boolean): this;
     withKeepUnitSame(keepUnitSame: boolean): this;

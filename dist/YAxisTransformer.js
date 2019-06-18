@@ -11,12 +11,24 @@ var AxisHelper = __importStar(require("./AxisHelper"));
 var YAxisTransformer = /** @class */ (function () {
     function YAxisTransformer(values) {
         var _this = this;
+        this.defaultBaseGenStrategy = function (originInterval) {
+            var base = AxisHelper.genPowNum(originInterval);
+            return [10 * base, 5 * base, 2 * base, base];
+        };
+        this.defaultFormatRuler = function (data, decimal) {
+            return data.toFixed(decimal);
+        };
+        this.defaultUnitSet = [{ range: 10000, unit: "万" }, { range: 100000000, unit: "亿" }];
         this.maxData = -Number.MAX_VALUE;
         this.minData = Number.MAX_VALUE;
         /**
          *  基准值生成策略
          */
-        this.baseGenStrategy = AxisHelper.defaultBaseGenStrategy;
+        this.baseGenStrategy = this.defaultBaseGenStrategy;
+        /**
+         * 格式化数据的规则
+         */
+        this.formatRuler = this.defaultFormatRuler;
         /**
          *  生成间距数目
          */
@@ -38,7 +50,10 @@ var YAxisTransformer = /** @class */ (function () {
          * unit跟随最大值当的结果
          */
         this.unitFollowMax = true;
-        this.unitSet = [{ range: 10000, unit: "万" }, { range: 100000000, unit: "亿" }];
+        this.unitSet = this.defaultUnitSet;
+        /**
+         * 是否使用百分比
+         */
         this.usePercentUnit = false;
         if (values) {
             values.forEach(function (value) {
@@ -74,6 +89,10 @@ var YAxisTransformer = /** @class */ (function () {
         this.baseGenStrategy = baseGenStrategy;
         return this;
     };
+    YAxisTransformer.prototype.withFormatRuler = function (formatRuler) {
+        this.formatRuler = formatRuler;
+        return this;
+    };
     YAxisTransformer.prototype.withForceDecimal = function (decimal) {
         this.forceDecimal = decimal;
         return this;
@@ -96,15 +115,18 @@ var YAxisTransformer = /** @class */ (function () {
     };
     YAxisTransformer.prototype.transform = function () {
         this.sortUnitSet();
-        var _a = this, maxData = _a.maxData, minData = _a.minData, count = _a.count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy;
+        var _a = this, maxData = _a.maxData, minData = _a.minData, count = _a.count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler;
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;
         var interval;
+        // 最大值 最小值相等的时候 最小值当成间距
         if (maxData == minData) {
             interval = minData;
             maxData = AxisHelper.genMaxData(minData, interval, count);
         }
+        // 处理最小值 
+        // 找出规整间距
         minData = this.handleMin(maxData, minData);
         interval = (maxData - minData) / count;
         interval = AxisHelper.findInterval(interval, baseGenStrategy);
@@ -129,7 +151,7 @@ var YAxisTransformer = /** @class */ (function () {
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result);
             }
-            var formatResult = (result / unit.range).toFixed(decimal);
+            var formatResult = formatRuler(result / unit.range, decimal);
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit;
             }

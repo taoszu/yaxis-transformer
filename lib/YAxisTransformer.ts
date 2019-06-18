@@ -1,6 +1,15 @@
 import * as AxisHelper from "./AxisHelper"
 
+/**
+ * 基准值生成策略
+ */
 export type Strategy = (interval: number) => number[]
+
+/**
+ * 格式化数据的规则
+ * 应用于对四舍五入精度有要求的场景
+ */
+export type FormatRuler = (data:number, decimal:number) => string
 
 export type Unit = { range: number, unit: string }
 
@@ -8,13 +17,27 @@ export type TransformResult = { data: number[], dataUnit: string[], adviseDecima
 
 export class YAxisTransformer {
 
+   defaultBaseGenStrategy = (originInterval: number) => {
+        let base = AxisHelper.genPowNum(originInterval)
+        return [10 * base, 5 * base, 2 * base, base]
+    }
+    defaultFormatRuler = (data:number, decimal:number) => {
+        return data.toFixed(decimal)
+    }
+    defaultUnitSet = [{range: 10000, unit: "万"}, {range: 100000000, unit: "亿"}]
+
     private maxData:number = - Number.MAX_VALUE
     private minData:number = Number.MAX_VALUE
 
     /**
      *  基准值生成策略
      */
-    private baseGenStrategy: Strategy = AxisHelper.defaultBaseGenStrategy
+    private baseGenStrategy: Strategy = this.defaultBaseGenStrategy
+
+    /**
+     * 格式化数据的规则
+     */
+    private formatRuler:FormatRuler = this.defaultFormatRuler
 
     /**
      *  生成间距数目
@@ -43,14 +66,16 @@ export class YAxisTransformer {
      */
     private unitFollowMax = true
 
-    private unitSet = [{range: 10000, unit: "万"}, {range: 100000000, unit: "亿"}]
+    private unitSet = this.defaultUnitSet
 
     /**
      * 强制小数位数
      */
     private forceDecimal: number | undefined
 
-
+    /**
+     * 是否使用百分比
+     */
     private usePercentUnit = false
 
     constructor(values?: number[]) {
@@ -96,6 +121,11 @@ export class YAxisTransformer {
         return this
     }
 
+    withFormatRuler(formatRuler:FormatRuler) {
+        this.formatRuler = formatRuler
+        return this
+    }
+
     withForceDecimal(decimal: number) {
         this.forceDecimal = decimal
         return this
@@ -123,10 +153,10 @@ export class YAxisTransformer {
 
     transform(): TransformResult {
         this.sortUnitSet()
-
         let {
             maxData, minData, count, keepUnitSame, usePercentUnit,
-            unitFollowMax, forceDecimal, keepZeroUnit, baseGenStrategy
+            unitFollowMax, forceDecimal, keepZeroUnit, baseGenStrategy,
+            formatRuler
         } = this
 
 
@@ -134,18 +164,19 @@ export class YAxisTransformer {
         let decimal = forceDecimal
         let adviceDecimal
         let interval
-
-
+        // 最大值 最小值相等的时候 最小值当成间距
         if (maxData == minData) {
             interval = minData
             maxData = AxisHelper.genMaxData(minData, interval, count)
         }
 
+        // 处理最小值 
+        // 找出规整间距
         minData = this.handleMin(maxData, minData)
         interval = (maxData - minData) / count
         interval = AxisHelper.findInterval(interval, baseGenStrategy)
         maxData = AxisHelper.genMaxData(minData, interval, count)
-        
+    
 
         // 找出单位
         unit = AxisHelper.minUnit
@@ -168,7 +199,7 @@ export class YAxisTransformer {
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result)
             }
-            let formatResult = (result / unit.range).toFixed(decimal)
+            let formatResult = formatRuler(result / unit.range, decimal)
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit
             }

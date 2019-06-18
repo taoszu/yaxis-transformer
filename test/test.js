@@ -9,6 +9,9 @@ describe('yaxis transform test', () => {
     const transformResult = yaxisTransformer
      .withCount(3)
      .withForceDecimal(2)
+     .withFormatRuler((data, decimal) => {
+         return data.toFixed(decimal + 1)
+     })
      .withUnitSet([{range:10000, unit:"万"}])
      .transform()
 
