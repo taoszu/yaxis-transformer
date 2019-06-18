@@ -6,22 +6,6 @@ export type Unit = { range: number, unit: string }
 
 export type TransformResult = { data: number[], dataUnit: string[], adviseDecimal: number }
 
-
-/**
- *
- * demo
- */
-export function demo() {
-    const value = [152, 514]
-    const transformer = new YAxisTransformer(value)
-    const result = transformer
-        .withCount(4)
-        .withPercentUnit()
-        .transform()
-
-    alert(JSON.stringify(result))
-}
-
 export class YAxisTransformer {
 
     private maxData:number = - Number.MAX_VALUE
