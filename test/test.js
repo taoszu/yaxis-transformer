@@ -9,9 +9,10 @@ describe('yaxis transform test', () => {
     const transformResult = yaxisTransformer
      .withCount(3)
      .withForceDecimal(2)
+     .withUnitSet([{range:10000, unit:"万"}])
      .transform()
 
-     console.log(JSON.stringify(transformResult))
+     transformResult.adviseDecimal
 
     expect(transformResult.data).deep.equal([0, 10000, 20000, 30000]).deep
     expect(transformResult.dataUnit).deep.equal(['0.00', '1.00万', '2.00万', '3.00万']).deep
