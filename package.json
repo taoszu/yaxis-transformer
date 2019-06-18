@@ -1,0 +1,24 @@
+{
+  "name": "yaxis-transformer",
+  "version": "1.0.0",
+  "description": "yaxis data transformer",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taoszu/yaxis-transformer.git"
+  },
+  "keywords": [
+    "yaxis",
+    "typescript"
+  ],
+  "author": "taoszu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/taoszu/yaxis-transformer/issues"
+  },
+  "homepage": "https://github.com/taoszu/yaxis-transformer#readme"
+}
