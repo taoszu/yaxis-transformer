@@ -7,7 +7,7 @@
 - 引入
 
 ```
-npm i @taoszu/yaxis-transformer
+npm i yaxis-transformer
 ```
 
 - 使用
