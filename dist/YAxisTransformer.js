@@ -8,20 +8,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var AxisHelper = __importStar(require("./AxisHelper"));
-/**
- *
- * demo
- */
-function demo() {
-    var value = [152, 514];
-    var transformer = new YAxisTransformer(value);
-    var result = transformer
-        .withCount(4)
-        .withPercentUnit()
-        .transform();
-    alert(JSON.stringify(result));
-}
-exports.demo = demo;
 var YAxisTransformer = /** @class */ (function () {
     function YAxisTransformer(values) {
         var _this = this;
@@ -197,3 +183,4 @@ var YAxisTransformer = /** @class */ (function () {
     return YAxisTransformer;
 }());
 exports.YAxisTransformer = YAxisTransformer;
+exports.default = YAxisTransformer;

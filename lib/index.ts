@@ -1,6 +1,4 @@
-import { YAxisTransformer } from "./YAxisTransformer";
-
-export function add(a:number, b:number): number {
-    return a + b
+import YAxisTransformer from './YAxisTransformer'
+export {
+    YAxisTransformer
 }
-export default YAxisTransformer

@@ -227,3 +227,5 @@ export class YAxisTransformer {
     }
 
 }
+
+export default YAxisTransformer

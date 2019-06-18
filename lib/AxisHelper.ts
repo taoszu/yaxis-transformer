@@ -1,5 +1,4 @@
 import {Strategy, Unit} from "./YAxisTransformer";
-
 export const minUnit = {range:1, unit:""}
 export const percentUnit = {range:0.01, unit:"%"}
 

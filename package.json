@@ -1,8 +1,8 @@
 {
   "name": "yaxis-transformer",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "yaxis data transformer",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
     "test": "mocha --reporter spec"
@@ -20,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/taoszu/yaxis-transformer/issues"
   },
-  "homepage": "https://github.com/taoszu/yaxis-transformer#readme"
+  "homepage": "https://github.com/taoszu/yaxis-transformer#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "typescript": "^3.0.3"
+  }
 }
