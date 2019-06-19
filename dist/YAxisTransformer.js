@@ -42,12 +42,16 @@ var YAxisTransformer = /** @class */ (function () {
          */
         this.keepZeroUnit = false;
         /**
+         * 最小值为0 是否保留小数位数
+         */
+        this.keepZeroDecimal = false;
+        /**
          * 保持单位一致
          */
         this.keepUnitSame = true;
         /**
          * 当keepUnitSame为true时
-         * unit跟随最大值当的结果
+         * unit是否跟随最大值算出的结果
          */
         this.unitFollowMax = true;
         this.unitSet = this.defaultUnitSet;
@@ -113,18 +117,17 @@ var YAxisTransformer = /** @class */ (function () {
         this.minToZero = minToZero;
         return this;
     };
+    YAxisTransformer.prototype.withKeepZeroDecimal = function (keepZeroDecimal) {
+        this.keepZeroDecimal = keepZeroDecimal;
+        return this;
+    };
     YAxisTransformer.prototype.transform = function () {
         this.sortUnitSet();
-        var _a = this, maxData = _a.maxData, minData = _a.minData, count = _a.count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler;
+        var _a = this, maxData = _a.maxData, minData = _a.minData, count = _a.count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;
         var interval;
-        // 最大值 最小值相等的时候 最小值当成间距
-        if (maxData == minData) {
-            interval = minData;
-            maxData = AxisHelper.genMaxData(minData, interval, count);
-        }
         // 处理最小值 
         // 找出规整间距
         minData = this.handleMin(maxData, minData);
@@ -148,10 +151,17 @@ var YAxisTransformer = /** @class */ (function () {
         var dataUnit = [];
         for (var i = 0; i < count + 1; i++) {
             var result = minData + interval * i;
+            // 找单位
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result);
             }
-            var formatResult = formatRuler(result / unit.range, decimal);
+            var formatResult = void 0;
+            if (result == 0 && !this.keepZeroDecimal) {
+                formatResult = "0";
+            }
+            else {
+                formatResult = formatRuler(result / unit.range, decimal);
+            }
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit;
             }

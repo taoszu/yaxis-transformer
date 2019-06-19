@@ -54,6 +54,10 @@ export class YAxisTransformer {
      */
     private keepZeroUnit = false
 
+    /**
+     * 最小值为0 是否保留小数位数
+     */
+    private keepZeroDecimal = false
 
     /**
      * 保持单位一致
@@ -62,7 +66,7 @@ export class YAxisTransformer {
 
     /**
      * 当keepUnitSame为true时
-     * unit跟随最大值当的结果
+     * unit是否跟随最大值算出的结果
      */
     private unitFollowMax = true
 
@@ -151,12 +155,17 @@ export class YAxisTransformer {
         return this
     }
 
+    withKeepZeroDecimal(keepZeroDecimal:boolean) {
+        this.keepZeroDecimal = keepZeroDecimal
+        return this
+    }
+
     transform(): TransformResult {
         this.sortUnitSet()
         let {
             maxData, minData, count, keepUnitSame, usePercentUnit,
             unitFollowMax, forceDecimal, keepZeroUnit, baseGenStrategy,
-            formatRuler
+            formatRuler, withKeepZeroDecimal
         } = this
 
 
@@ -164,11 +173,6 @@ export class YAxisTransformer {
         let decimal = forceDecimal
         let adviceDecimal
         let interval
-        // 最大值 最小值相等的时候 最小值当成间距
-        if (maxData == minData) {
-            interval = minData
-            maxData = AxisHelper.genMaxData(minData, interval, count)
-        }
 
         // 处理最小值 
         // 找出规整间距
@@ -177,7 +181,6 @@ export class YAxisTransformer {
         interval = AxisHelper.findInterval(interval, baseGenStrategy)
         maxData = AxisHelper.genMaxData(minData, interval, count)
     
-
         // 找出单位
         unit = AxisHelper.minUnit
         if (usePercentUnit) {
@@ -196,10 +199,18 @@ export class YAxisTransformer {
         const dataUnit: string[] = []
         for (let i = 0; i < count + 1; i++) {
             const result = minData + interval * i
+            // 找单位
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result)
             }
-            let formatResult = formatRuler(result / unit.range, decimal)
+
+            let formatResult
+            if(result == 0 && !this.keepZeroDecimal) {
+                formatResult = "0"
+            } else {
+                formatResult = formatRuler(result / unit.range, decimal)
+            }
+
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit
             }

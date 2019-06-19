@@ -46,12 +46,16 @@ export declare class YAxisTransformer {
      */
     private keepZeroUnit;
     /**
+     * 最小值为0 是否保留小数位数
+     */
+    private keepZeroDecimal;
+    /**
      * 保持单位一致
      */
     private keepUnitSame;
     /**
      * 当keepUnitSame为true时
-     * unit跟随最大值当的结果
+     * unit是否跟随最大值算出的结果
      */
     private unitFollowMax;
     private unitSet;
@@ -75,6 +79,7 @@ export declare class YAxisTransformer {
     withKeepUnitSame(keepUnitSame: boolean): this;
     withUnitFollowMax(unitFollowMax: boolean): this;
     withMinToZero(minToZero: boolean): this;
+    withKeepZeroDecimal(keepZeroDecimal: boolean): this;
     transform(): TransformResult;
     private sortUnitSet;
     private findUnit;
