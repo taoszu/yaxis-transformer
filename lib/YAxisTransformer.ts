@@ -26,8 +26,16 @@ export class YAxisTransformer {
     }
     defaultUnitSet = [{range: 10000, unit: "万"}, {range: 100000000, unit: "亿"}]
 
-    private maxData:number = - Number.MAX_VALUE
-    private minData:number = Number.MAX_VALUE
+    private _maxData:number = - Number.MAX_VALUE
+    private _minData:number = Number.MAX_VALUE
+
+    get maxData() {
+        return this._maxData
+    }
+
+    get minData() {
+        return this._minData
+    }
 
     /**
      *  基准值生成策略
@@ -85,12 +93,12 @@ export class YAxisTransformer {
     constructor(values?: number[]) {
         if (values) {
             values.forEach((value) => {
-                if (value > this.maxData) {
-                    this.maxData = value
+                if (value > this._maxData) {
+                    this._maxData = value
                 }
 
-                if (value < this.minData) {
-                    this.minData = value
+                if (value < this._minData) {
+                    this._minData = value
                 }
 
             })
@@ -115,8 +123,8 @@ export class YAxisTransformer {
     }
 
     withMinMaxData(minData: number, maxData: number) {
-        this.minData = minData
-        this.maxData = maxData
+        this._minData = minData
+        this._maxData = maxData
         return this
     }
 
@@ -163,7 +171,7 @@ export class YAxisTransformer {
     transform(): TransformResult {
         this.sortUnitSet()
         let {
-            maxData, minData, count, keepUnitSame, usePercentUnit,
+            count, keepUnitSame, usePercentUnit,
             unitFollowMax, forceDecimal, keepZeroUnit, baseGenStrategy,
             formatRuler, withKeepZeroDecimal
         } = this
@@ -176,21 +184,25 @@ export class YAxisTransformer {
 
         // 处理最小值 
         // 找出规整间距
-        minData = this.handleMin(maxData, minData)
-        interval = (maxData - minData) / count
+        this._minData = this.handleMin(this._maxData, this._minData)
+        interval = (this._maxData - this._minData) / count
         interval = AxisHelper.findInterval(interval, baseGenStrategy)
-        maxData = AxisHelper.genMaxData(minData, interval, count)
+        this._maxData = AxisHelper.genMaxData(this._minData, interval, count)
     
         // 找出单位
         unit = AxisHelper.minUnit
         if (usePercentUnit) {
             unit = AxisHelper.percentUnit
         } else if (keepUnitSame) {
-            unit = unitFollowMax ? this.findUnit(maxData) : this.findUnit(minData)
+            unit = unitFollowMax ? this.findUnit(this._maxData) : this.findUnit(this._minData)
         }
 
         // 处理小数位数
-        adviceDecimal = AxisHelper.getDecimal(interval, maxData, unit)
+        if(keepUnitSame && !unitFollowMax) {
+            adviceDecimal = AxisHelper.getDecimal(interval, this._minData, unit)
+        } else {
+            adviceDecimal = AxisHelper.getDecimal(interval, this._maxData, unit)
+        }
         if (!decimal) {
             decimal = adviceDecimal
         }
@@ -198,7 +210,7 @@ export class YAxisTransformer {
         const data: number[] = []
         const dataUnit: string[] = []
         for (let i = 0; i < count + 1; i++) {
-            const result = minData + interval * i
+            const result = this._minData + interval * i
             // 找单位
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result)

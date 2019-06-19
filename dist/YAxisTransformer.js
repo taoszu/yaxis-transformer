@@ -19,8 +19,8 @@ var YAxisTransformer = /** @class */ (function () {
             return data.toFixed(decimal);
         };
         this.defaultUnitSet = [{ range: 10000, unit: "万" }, { range: 100000000, unit: "亿" }];
-        this.maxData = -Number.MAX_VALUE;
-        this.minData = Number.MAX_VALUE;
+        this._maxData = -Number.MAX_VALUE;
+        this._minData = Number.MAX_VALUE;
         /**
          *  基准值生成策略
          */
@@ -61,15 +61,29 @@ var YAxisTransformer = /** @class */ (function () {
         this.usePercentUnit = false;
         if (values) {
             values.forEach(function (value) {
-                if (value > _this.maxData) {
-                    _this.maxData = value;
+                if (value > _this._maxData) {
+                    _this._maxData = value;
                 }
-                if (value < _this.minData) {
-                    _this.minData = value;
+                if (value < _this._minData) {
+                    _this._minData = value;
                 }
             });
         }
     }
+    Object.defineProperty(YAxisTransformer.prototype, "maxData", {
+        get: function () {
+            return this._maxData;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(YAxisTransformer.prototype, "minData", {
+        get: function () {
+            return this._minData;
+        },
+        enumerable: true,
+        configurable: true
+    });
     YAxisTransformer.prototype.withCount = function (count) {
         this.count = count;
         return this;
@@ -85,8 +99,8 @@ var YAxisTransformer = /** @class */ (function () {
         return this;
     };
     YAxisTransformer.prototype.withMinMaxData = function (minData, maxData) {
-        this.minData = minData;
-        this.maxData = maxData;
+        this._minData = minData;
+        this._maxData = maxData;
         return this;
     };
     YAxisTransformer.prototype.withBaseGenStrategy = function (baseGenStrategy) {
@@ -123,34 +137,39 @@ var YAxisTransformer = /** @class */ (function () {
     };
     YAxisTransformer.prototype.transform = function () {
         this.sortUnitSet();
-        var _a = this, maxData = _a.maxData, minData = _a.minData, count = _a.count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
+        var _a = this, count = _a.count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;
         var interval;
         // 处理最小值 
         // 找出规整间距
-        minData = this.handleMin(maxData, minData);
-        interval = (maxData - minData) / count;
+        this._minData = this.handleMin(this._maxData, this._minData);
+        interval = (this._maxData - this._minData) / count;
         interval = AxisHelper.findInterval(interval, baseGenStrategy);
-        maxData = AxisHelper.genMaxData(minData, interval, count);
+        this._maxData = AxisHelper.genMaxData(this._minData, interval, count);
         // 找出单位
         unit = AxisHelper.minUnit;
         if (usePercentUnit) {
             unit = AxisHelper.percentUnit;
         }
         else if (keepUnitSame) {
-            unit = unitFollowMax ? this.findUnit(maxData) : this.findUnit(minData);
+            unit = unitFollowMax ? this.findUnit(this._maxData) : this.findUnit(this._minData);
         }
         // 处理小数位数
-        adviceDecimal = AxisHelper.getDecimal(interval, maxData, unit);
+        if (keepUnitSame && !unitFollowMax) {
+            adviceDecimal = AxisHelper.getDecimal(interval, this._minData, unit);
+        }
+        else {
+            adviceDecimal = AxisHelper.getDecimal(interval, this._maxData, unit);
+        }
         if (!decimal) {
             decimal = adviceDecimal;
         }
         var data = [];
         var dataUnit = [];
         for (var i = 0; i < count + 1; i++) {
-            var result = minData + interval * i;
+            var result = this._minData + interval * i;
             // 找单位
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result);

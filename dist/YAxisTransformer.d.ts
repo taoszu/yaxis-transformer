@@ -23,8 +23,10 @@ export declare class YAxisTransformer {
         range: number;
         unit: string;
     }[];
-    private maxData;
-    private minData;
+    private _maxData;
+    private _minData;
+    readonly maxData: number;
+    readonly minData: number;
     /**
      *  基准值生成策略
      */
