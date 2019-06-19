@@ -32,7 +32,7 @@ var YAxisTransformer = /** @class */ (function () {
         /**
          *  生成间距数目
          */
-        this.count = 4;
+        this._count = 4;
         /**
          * 最小值小于interval 是否格式化为0
          */
@@ -84,8 +84,15 @@ var YAxisTransformer = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    YAxisTransformer.prototype.withCount = function (count) {
-        this.count = count;
+    Object.defineProperty(YAxisTransformer.prototype, "count", {
+        get: function () {
+            return this._count;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    YAxisTransformer.prototype.withCount = function (_count) {
+        this._count = _count;
         return this;
     };
     YAxisTransformer.prototype.withUnitSet = function (unitSet) {
@@ -137,7 +144,7 @@ var YAxisTransformer = /** @class */ (function () {
     };
     YAxisTransformer.prototype.transform = function () {
         this.sortUnitSet();
-        var _a = this, count = _a.count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
+        var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;
@@ -145,9 +152,9 @@ var YAxisTransformer = /** @class */ (function () {
         // 处理最小值 
         // 找出规整间距
         this._minData = this.handleMin(this._maxData, this._minData);
-        interval = (this._maxData - this._minData) / count;
+        interval = (this._maxData - this._minData) / _count;
         interval = AxisHelper.findInterval(interval, baseGenStrategy);
-        this._maxData = AxisHelper.genMaxData(this._minData, interval, count);
+        this._maxData = AxisHelper.genMaxData(this._minData, interval, _count);
         // 找出单位
         unit = AxisHelper.minUnit;
         if (usePercentUnit) {
@@ -168,7 +175,7 @@ var YAxisTransformer = /** @class */ (function () {
         }
         var data = [];
         var dataUnit = [];
-        for (var i = 0; i < count + 1; i++) {
+        for (var i = 0; i < _count + 1; i++) {
             var result = this._minData + interval * i;
             // 找单位
             if (!keepUnitSame && !usePercentUnit) {
@@ -210,8 +217,8 @@ var YAxisTransformer = /** @class */ (function () {
         return unit;
     };
     YAxisTransformer.prototype.handleMin = function (maxData, minData) {
-        var _a = this, count = _a.count, minToZero = _a.minToZero, baseGenStrategy = _a.baseGenStrategy;
-        var interval = (maxData - minData) / count;
+        var _a = this, _count = _a._count, minToZero = _a.minToZero, baseGenStrategy = _a.baseGenStrategy;
+        var interval = (maxData - minData) / _count;
         var baseInterval = AxisHelper.findInterval(interval, this.baseGenStrategy);
         if (minData > 0 && baseInterval > minData && minToZero) {
             return 0;

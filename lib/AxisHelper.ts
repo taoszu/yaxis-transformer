@@ -34,12 +34,6 @@ export function findMinInterval(remainPart: number,  strategyFunc:Strategy) {
 }
 
 
-
-export function defaultBaseGenStrategy(originInterval: number) {
-    let base = genPowNum(originInterval)
-    return [10 * base, 5 * base, 2 * base, base]
-}
-
 /**
  * 生成十的幂次方
  * @param data

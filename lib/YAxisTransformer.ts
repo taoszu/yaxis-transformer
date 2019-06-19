@@ -50,7 +50,11 @@ export class YAxisTransformer {
     /**
      *  生成间距数目
      */
-    private count = 4
+    private _count = 4
+
+    get count() {
+        return this._count
+    }
 
     /**
      * 最小值小于interval 是否格式化为0
@@ -105,8 +109,8 @@ export class YAxisTransformer {
         }
     }
 
-    withCount(count: number) {
-        this.count = count
+    withCount(_count: number) {
+        this._count = _count
         return this
     }
 
@@ -171,7 +175,7 @@ export class YAxisTransformer {
     transform(): TransformResult {
         this.sortUnitSet()
         let {
-            count, keepUnitSame, usePercentUnit,
+            _count, keepUnitSame, usePercentUnit,
             unitFollowMax, forceDecimal, keepZeroUnit, baseGenStrategy,
             formatRuler, withKeepZeroDecimal
         } = this
@@ -185,9 +189,9 @@ export class YAxisTransformer {
         // 处理最小值 
         // 找出规整间距
         this._minData = this.handleMin(this._maxData, this._minData)
-        interval = (this._maxData - this._minData) / count
+        interval = (this._maxData - this._minData) / _count
         interval = AxisHelper.findInterval(interval, baseGenStrategy)
-        this._maxData = AxisHelper.genMaxData(this._minData, interval, count)
+        this._maxData = AxisHelper.genMaxData(this._minData, interval, _count)
     
         // 找出单位
         unit = AxisHelper.minUnit
@@ -209,7 +213,7 @@ export class YAxisTransformer {
 
         const data: number[] = []
         const dataUnit: string[] = []
-        for (let i = 0; i < count + 1; i++) {
+        for (let i = 0; i < _count + 1; i++) {
             const result = this._minData + interval * i
             // 找单位
             if (!keepUnitSame && !usePercentUnit) {
@@ -257,9 +261,9 @@ export class YAxisTransformer {
     }
 
     private handleMin(maxData: number, minData: number) {
-        let {count, minToZero, baseGenStrategy} = this
+        let {_count, minToZero, baseGenStrategy} = this
 
-        let interval = (maxData - minData) / count
+        let interval = (maxData - minData) / _count
         let baseInterval = AxisHelper.findInterval(interval, this.baseGenStrategy)
 
         if (minData > 0 && baseInterval > minData && minToZero) {

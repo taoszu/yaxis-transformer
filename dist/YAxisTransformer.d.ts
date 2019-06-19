@@ -38,7 +38,8 @@ export declare class YAxisTransformer {
     /**
      *  生成间距数目
      */
-    private count;
+    private _count;
+    readonly count: number;
     /**
      * 最小值小于interval 是否格式化为0
      */
@@ -70,7 +71,7 @@ export declare class YAxisTransformer {
      */
     private usePercentUnit;
     constructor(values?: number[]);
-    withCount(count: number): this;
+    withCount(_count: number): this;
     withUnitSet(unitSet: Unit[]): this;
     withPercentUnit(): this;
     withMinMaxData(minData: number, maxData: number): this;

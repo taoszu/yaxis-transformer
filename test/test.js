@@ -15,10 +15,10 @@ describe('yaxis transform test', () => {
      .withUnitSet([{range:10000, unit:"万"}])
      .transform()
 
-     expect(yaxisTransformer._maxData).equal(30000)
-     expect(yaxisTransformer._minData).equal(0)
-
-    expect(transformResult.data).deep.equal([0, 10000, 20000, 30000]).deep
-    expect(transformResult.dataUnit).deep.equal(['0', '1.0万', '2.0万', '3.0万']).deep
+     expect(yaxisTransformer.maxData).equal(30000)
+     expect(yaxisTransformer.minData).equal(0)
+     expect(yaxisTransformer.count).equal(3)
+     expect(transformResult.data).deep.equal([0, 10000, 20000, 30000]).deep
+     expect(transformResult.dataUnit).deep.equal(['0', '1.0万', '2.0万', '3.0万']).deep
   });
 });
