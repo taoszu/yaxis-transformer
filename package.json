@@ -1,6 +1,6 @@
 {
   "name": "yaxis-transformer",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "yaxis data transformer",
   "main": "./dist/index.js",
   "scripts": {
