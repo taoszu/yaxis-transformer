@@ -1,8 +1,10 @@
 ## y轴转换工具
 
- 根据给定的一组数据，定制生成一组规整的y轴数据。
-
- `1.1.3` 
+ 根据给定的一组数据，定制生成一组规整的y轴数据。  
+ 
+[![Build Status](https://travis-ci.org/taoszu/yaxis-transformer.svg?branch=master)](https://travis-ci.org/taoszu/yaxis-transformer)
+[![npm](https://img.shields.io/npm/v/yaxis-transformer.svg)](https://www.npmjs.com/package/yaxis-transformer)
+[![npm](https://img.shields.io/npm/dt/yaxis-transformer.svg)](https://www.npmjs.com/package/yaxis-transformer)
 
 ## 引入
 
