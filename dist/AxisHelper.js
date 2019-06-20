@@ -32,11 +32,6 @@ function findMinInterval(remainPart, strategyFunc) {
     return 0;
 }
 exports.findMinInterval = findMinInterval;
-function defaultBaseGenStrategy(originInterval) {
-    var base = genPowNum(originInterval);
-    return [10 * base, 5 * base, 2 * base, base];
-}
-exports.defaultBaseGenStrategy = defaultBaseGenStrategy;
 /**
  * 生成十的幂次方
  * @param data
@@ -72,20 +67,30 @@ function isContainInt(data) {
     return data >= 1;
 }
 exports.isContainInt = isContainInt;
-function getDecimal(interval, max, unit) {
-    if (isContainDecimal(interval)) {
-        var decimal = Math.abs(getPowBit(interval));
+/**
+ * 大致思路就是为了获取最小的数
+ * 相对于参考值的倍数
+ * 例如 1000 相对于 10000是0.1 那么最小需要的小数位数就是1
+ * 这样就可以确保完整显示出所有有效的小数位数
+ * @param min
+ * @param reference
+ * @param unit
+ */
+function getDecimal(min, reference, unit) {
+    if (isContainDecimal(min)) {
+        var decimal = Math.abs(getPowBit(min));
+        // 如果是百分比 需要减2
         if (unit.unit == exports.percentUnit.unit) {
             decimal = Math.max(0, decimal - 2);
         }
         return decimal;
     }
-    else if (isEmpty(unit.unit)) {
+    else if (isEmpty(unit.unit) || min > reference) {
         return 0;
     }
     else {
-        var decimal = getPowBit(max) - getPowBit(interval);
-        return Math.abs(decimal);
+        var decimal = getPowBit(reference) - getPowBit(min);
+        return Math.max(0, decimal);
     }
 }
 exports.getDecimal = getDecimal;

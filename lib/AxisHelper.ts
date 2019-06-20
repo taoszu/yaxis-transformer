@@ -69,20 +69,29 @@ export function isContainInt(data: number) {
     return data >= 1
 }
 
-
-export function getDecimal(interval: number, max:number, unit:Unit) {
-    if (isContainDecimal(interval)) {
-        let decimal = Math.abs(getPowBit(interval))
+/**
+ * 大致思路就是为了获取最小的数
+ * 相对于参考值的倍数
+ * 例如 1000 相对于 10000是0.1 那么最小需要的小数位数就是1 
+ * 这样就可以确保完整显示出所有有效的小数位数
+ * @param min 
+ * @param reference 
+ * @param unit 
+ */
+export function getDecimal(min: number, reference:number, unit:Unit) {
+    if (isContainDecimal(min)) {
+        let decimal = Math.abs(getPowBit(min))
+        // 如果是百分比 需要减2
         if (unit.unit == percentUnit.unit) {
             decimal = Math.max(0, decimal - 2)
         }
         return decimal
 
-    } else if(isEmpty(unit.unit)) {
+    } else if(isEmpty(unit.unit) || min > reference) {
         return 0
     } else {
-        const decimal = getPowBit(max) - getPowBit(interval)
-        return Math.abs(decimal)
+        const decimal = getPowBit(reference) - getPowBit(min)
+        return Math.max(0, decimal)
     }
 
 }

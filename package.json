@@ -1,12 +1,12 @@
 {
   "name": "yaxis-transformer",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "yaxis data transformer",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
     "test": "mocha --reporter spec",
-    "cover": "istanbul cover node_modules/mocha/bin/_mocha test/*.js - - -R spec"
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha test/*.js - - -R spec"
   },
   "repository": {
     "type": "git",

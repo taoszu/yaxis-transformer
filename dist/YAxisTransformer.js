@@ -163,13 +163,11 @@ var YAxisTransformer = /** @class */ (function () {
         else if (keepUnitSame) {
             unit = unitFollowMax ? this.findUnit(this._maxData) : this.findUnit(this._minData);
         }
+        // 找出参考值
+        var reference = unitFollowMax ? this._maxData : this._minData;
+        var min = this._minData < interval ? this._minData : interval;
         // 处理小数位数
-        if (keepUnitSame && !unitFollowMax) {
-            adviceDecimal = AxisHelper.getDecimal(interval, this._minData, unit);
-        }
-        else {
-            adviceDecimal = AxisHelper.getDecimal(interval, this._maxData, unit);
-        }
+        adviceDecimal = AxisHelper.getDecimal(min, reference, unit);
         if (!decimal) {
             decimal = adviceDecimal;
         }
@@ -220,8 +218,8 @@ var YAxisTransformer = /** @class */ (function () {
         var _a = this, _count = _a._count, minToZero = _a.minToZero, baseGenStrategy = _a.baseGenStrategy;
         var interval = (maxData - minData) / _count;
         var baseInterval = AxisHelper.findInterval(interval, this.baseGenStrategy);
-        if (minData > 0 && baseInterval > minData && minToZero) {
-            return 0;
+        if (minData > 0 && baseInterval > minData) {
+            return minToZero ? 0 : AxisHelper.findMinInterval(minData, baseGenStrategy);
         }
         else {
             var intervalPowNum = AxisHelper.genPowNum(interval);

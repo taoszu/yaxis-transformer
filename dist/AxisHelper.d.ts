@@ -15,7 +15,6 @@ export declare function findInterval(range: number, strategyFunc: Strategy): num
  * @param interval
  */
 export declare function findMinInterval(remainPart: number, strategyFunc: Strategy): number;
-export declare function defaultBaseGenStrategy(originInterval: number): number[];
 /**
  * 生成十的幂次方
  * @param data
@@ -34,5 +33,14 @@ export declare function getPowBit(data: number): number;
  */
 export declare function isContainDecimal(data: number): boolean;
 export declare function isContainInt(data: number): boolean;
-export declare function getDecimal(interval: number, max: number, unit: Unit): number;
+/**
+ * 大致思路就是为了获取最小的数
+ * 相对于参考值的倍数
+ * 例如 1000 相对于 10000是0.1 那么最小需要的小数位数就是1
+ * 这样就可以确保完整显示出所有有效的小数位数
+ * @param min
+ * @param reference
+ * @param unit
+ */
+export declare function getDecimal(min: number, reference: number, unit: Unit): number;
 export declare function isEmpty(text: string): boolean;
