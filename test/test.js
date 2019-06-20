@@ -24,6 +24,30 @@ describe('yaxis transform test 1', () => {
 describe('yaxis transform test 2', () => {
   it('result ', () => {
 
+    const yaxisTransformer = new YaxisTransformer([1542, 6100])
+    let transformResult  = yaxisTransformer
+     .withCount(3)
+     .withForceDecimal(2)
+     .withMinToZero(false)
+     .withUnitFollowMax(false)
+     .withFormatRuler((data, decimal) => {
+         return data.toFixed(decimal)
+     })
+     .withUnitSet([{range:10000, unit:"万"}])
+     .transform()
+
+     expect(transformResult.adviseDecimal).equal(0)
+     expect(transformResult.data).deep.equal([1000, 3000, 5000, 7000]).deep
+     expect(transformResult.dataUnit).deep.equal(['1000', '3000', '5000', '7000']).deep
+
+
+  });
+});
+
+
+describe('yaxis transform test 3', () => {
+  it('result ', () => {
+
     const yaxisTransformer = new YaxisTransformer([100, 22555])
     let transformResult  = yaxisTransformer
      .withCount(3)

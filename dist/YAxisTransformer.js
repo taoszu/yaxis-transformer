@@ -234,12 +234,13 @@ var YAxisTransformer = /** @class */ (function () {
             return minToZero ? 0 : AxisHelper.findMinInterval(minData, baseGenStrategy);
         }
         else {
-            var intervalPowNum = AxisHelper.genPowNum(interval);
+            var intervalPowNum = AxisHelper.genPowNum(baseInterval);
             var baseNum = intervalPowNum * 10;
             var keepPart = Math.floor(minData / baseNum) * baseNum;
             var remainPart = minData - keepPart;
             var remainPowNum = AxisHelper.genPowNum(remainPart);
             //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
+            //否则直接舍弃处理的part
             if (intervalPowNum == remainPowNum) {
                 return keepPart + AxisHelper.findMinInterval(remainPart, baseGenStrategy);
             }
