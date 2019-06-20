@@ -5,6 +5,7 @@
 [![Build Status](https://travis-ci.org/taoszu/yaxis-transformer.svg?branch=master)](https://travis-ci.org/taoszu/yaxis-transformer)
 [![npm](https://img.shields.io/npm/v/yaxis-transformer.svg)](https://www.npmjs.com/package/yaxis-transformer)
 [![npm](https://img.shields.io/npm/dt/yaxis-transformer.svg)](https://www.npmjs.com/package/yaxis-transformer)
+[![Coverage Status](https://coveralls.io/repos/github/taoszu/yaxis-transformer/badge.svg?branch=master)](https://coveralls.io/github/taoszu/yaxis-transformer?branch=master)
 
 ## 引入
 
