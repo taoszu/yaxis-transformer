@@ -145,6 +145,18 @@ var YAxisTransformer = /** @class */ (function () {
     YAxisTransformer.prototype.transform = function () {
         this.sortUnitSet();
         var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
+        if (_count <= 0) {
+            throw "count should >= 0";
+        }
+        if (forceDecimal && forceDecimal < 0) {
+            throw "forceDecimal should > 0";
+        }
+        if (this._maxData == -Number.MAX_VALUE) {
+            throw "maxData is invalid";
+        }
+        if (this._minData == Number.MAX_VALUE) {
+            throw "minData is invalid";
+        }
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;

@@ -180,6 +180,19 @@ export class YAxisTransformer {
             formatRuler, withKeepZeroDecimal
         } = this
 
+        if(_count <= 0) {
+            throw "count should >= 0"
+        }
+        if(forceDecimal && forceDecimal < 0) {
+            throw "forceDecimal should > 0"
+        }
+
+        if(this._maxData == - Number.MAX_VALUE) {
+            throw "maxData is invalid"
+        }
+        if(this._minData ==  Number.MAX_VALUE) {
+            throw "minData is invalid"
+        }
 
         let unit
         let decimal = forceDecimal
