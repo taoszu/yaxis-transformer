@@ -27,7 +27,6 @@ describe('yaxis transform test 2', () => {
     const yaxisTransformer = new YaxisTransformer([1542, 6100])
     let transformResult  = yaxisTransformer
      .withCount(3)
-     .withForceDecimal(2)
      .withMinToZero(false)
      .withUnitFollowMax(false)
      .withFormatRuler((data, decimal) => {
