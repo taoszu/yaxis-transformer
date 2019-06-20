@@ -54,7 +54,7 @@ export function genPowNum(data: number) {
  * @param data
  */
 export function getPowBit(data: number) {
-    return Math.floor(Math.log10(Math.abs(data)))
+    return (data == 0) ? 0 :  Math.floor(Math.log10(Math.abs(data)))
 }
 
 /**
@@ -79,21 +79,28 @@ export function isContainInt(data: number) {
  * @param unit 
  */
 export function getDecimal(min: number, reference:number, unit:Unit) {
-    if (isContainDecimal(min)) {
-        let decimal = Math.abs(getPowBit(min))
-        // 如果是百分比 需要减2
-        if (unit.unit == percentUnit.unit) {
-            decimal = Math.max(0, decimal - 2)
-        }
-        return decimal
+    let decimal
+    const isMinContainDecimal = isContainDecimal(min)
+    const isReferenceContainDecimal = isContainDecimal(reference)
+    if(isMinContainDecimal || isReferenceContainDecimal) {
+        const minPowBit = Math.abs(getPowBit(min))
+        const referencePowBit = Math.abs(getPowBit(reference))
+        decimal = Math.max(minPowBit, referencePowBit)
 
-    } else if(isEmpty(unit.unit) || min > reference) {
-        return 0
     } else {
-        const decimal = getPowBit(reference) - getPowBit(min)
-        return Math.max(0, decimal)
+        if(min > reference || isEmpty(unit.unit) || min == 0) {
+            decimal = 0
+        } else {
+            decimal = getPowBit(reference) - getPowBit(min)
+            decimal = Math.max(0, decimal)
+        }
     }
 
+    // 如果是百分比 需要减2
+    if (unit.unit == percentUnit.unit) {
+        decimal = Math.max(0, decimal - 2)
+    }
+    return decimal
 }
 
 export function isEmpty(text:string):boolean {

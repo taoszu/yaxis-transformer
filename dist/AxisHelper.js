@@ -52,7 +52,7 @@ exports.genPowNum = genPowNum;
  * @param data
  */
 function getPowBit(data) {
-    return Math.floor(Math.log10(Math.abs(data)));
+    return (data == 0) ? 0 : Math.floor(Math.log10(Math.abs(data)));
 }
 exports.getPowBit = getPowBit;
 /**
@@ -77,21 +77,28 @@ exports.isContainInt = isContainInt;
  * @param unit
  */
 function getDecimal(min, reference, unit) {
-    if (isContainDecimal(min)) {
-        var decimal = Math.abs(getPowBit(min));
-        // 如果是百分比 需要减2
-        if (unit.unit == exports.percentUnit.unit) {
-            decimal = Math.max(0, decimal - 2);
-        }
-        return decimal;
-    }
-    else if (isEmpty(unit.unit) || min > reference) {
-        return 0;
+    var decimal;
+    var isMinContainDecimal = isContainDecimal(min);
+    var isReferenceContainDecimal = isContainDecimal(reference);
+    if (isMinContainDecimal || isReferenceContainDecimal) {
+        var minPowBit = Math.abs(getPowBit(min));
+        var referencePowBit = Math.abs(getPowBit(reference));
+        decimal = Math.max(minPowBit, referencePowBit);
     }
     else {
-        var decimal = getPowBit(reference) - getPowBit(min);
-        return Math.max(0, decimal);
+        if (min > reference || isEmpty(unit.unit) || min == 0) {
+            decimal = 0;
+        }
+        else {
+            decimal = getPowBit(reference) - getPowBit(min);
+            decimal = Math.max(0, decimal);
+        }
     }
+    // 如果是百分比 需要减2
+    if (unit.unit == exports.percentUnit.unit) {
+        decimal = Math.max(0, decimal - 2);
+    }
+    return decimal;
 }
 exports.getDecimal = getDecimal;
 function isEmpty(text) {

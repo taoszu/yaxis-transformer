@@ -35,3 +35,7 @@ const transformResult = yaxisTransformer
 ```
 
 其中，data是计算得到的一组数据数组，dataUnit是格式之后带单位的值，格式化的配置可以灵活定制，如小数位数，单位设置等等。adviseDecimal是计算之后得到的建议小数位数。
+
+## 分析
+点击[y轴数据变换利器——yaxis-transformer](https://juejin.im/post/5d0a43cc6fb9a07ebb053842)查看用法和分析。
+
