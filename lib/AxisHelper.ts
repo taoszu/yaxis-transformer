@@ -58,6 +58,20 @@ export function getPowBit(data: number) {
 }
 
 /**
+ * 获取小数的小数位数位数
+ * @param data 
+ */
+export function getDecimalNum(data:number) {
+    let decimal = 0
+    let num = data
+    while(isContainDecimal(num)) {
+        num = num * 10
+        decimal ++
+    }
+    return decimal
+}
+
+/**
  * 是否包含小数
  * @param data
  */
@@ -74,18 +88,20 @@ export function isContainInt(data: number) {
  * 相对于参考值的倍数
  * 例如 1000 相对于 10000是0.1 那么最小需要的小数位数就是1 
  * 这样就可以确保完整显示出所有有效的小数位数
+ * 对于小数位数，直接取interval的小数位数
  * @param min 
  * @param reference 
+ * @param interval
  * @param unit 
  */
-export function getDecimal(min: number, reference:number, unit:Unit) {
+export function getDecimal(min: number, reference:number, interval:number, unit:Unit) {
     let decimal
     const isMinContainDecimal = isContainDecimal(min)
     const isReferenceContainDecimal = isContainDecimal(reference)
-    if(isMinContainDecimal || isReferenceContainDecimal) {
-        const minPowBit = Math.abs(getPowBit(min))
-        const referencePowBit = Math.abs(getPowBit(reference))
-        decimal = Math.max(minPowBit, referencePowBit)
+    if(isContainDecimal(interval)) {
+        const minDecimal = getDecimalNum(min)
+        const referenceDecimal = getDecimalNum(reference)
+        decimal = getDecimalNum(interval)
 
     } else {
         if(min > reference || isEmpty(unit.unit) || min == 0) {

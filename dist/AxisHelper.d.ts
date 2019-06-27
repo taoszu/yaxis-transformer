@@ -28,6 +28,11 @@ export declare function genPowNum(data: number): number;
  */
 export declare function getPowBit(data: number): number;
 /**
+ * 获取小数的小数位数位数
+ * @param data
+ */
+export declare function getDecimalNum(data: number): number;
+/**
  * 是否包含小数
  * @param data
  */
@@ -38,9 +43,11 @@ export declare function isContainInt(data: number): boolean;
  * 相对于参考值的倍数
  * 例如 1000 相对于 10000是0.1 那么最小需要的小数位数就是1
  * 这样就可以确保完整显示出所有有效的小数位数
+ * 对于小数位数，直接取interval的小数位数
  * @param min
  * @param reference
+ * @param interval
  * @param unit
  */
-export declare function getDecimal(min: number, reference: number, unit: Unit): number;
+export declare function getDecimal(min: number, reference: number, interval: number, unit: Unit): number;
 export declare function isEmpty(text: string): boolean;

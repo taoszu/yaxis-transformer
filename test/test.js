@@ -86,7 +86,6 @@ describe('yaxis transform test 4', () => {
   });
 });
 
-
 describe('yaxis transform test 5', () => {
   it('result ', () => {
 
@@ -100,5 +99,21 @@ describe('yaxis transform test 5', () => {
      expect(transformResult.adviseDecimal).equal(1)
      expect(transformResult.data).deep.equal([0, 0.1, 0.2, 0.30000000000000004]).deep
      expect(transformResult.dataUnit).deep.equal(['0', '0.1', '0.2', '0.3']).deep
+  });
+});
+
+describe('yaxis transform test 6', () => {
+  it('result ', () => {
+
+    const yaxisTransformer = new YaxisTransformer([-0.9999499999999999, -0.9999299999999999, -0.9999099999999999, -0.99989])
+    let transformResult = yaxisTransformer
+     .withCount(3)
+     .withMinToZero(true)
+     .withPercentUnit()
+     .transform()
+
+     expect(transformResult.adviseDecimal).equal(3)
+     expect(transformResult.data).deep.equal([-0.99995, -0.9999, -0.99985, -0.9998]).deep
+     expect(transformResult.dataUnit).deep.equal(['-99.995%', '-99.990%', '-99.985%', '-99.980%']).deep
   });
 });

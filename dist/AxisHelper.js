@@ -56,6 +56,20 @@ function getPowBit(data) {
 }
 exports.getPowBit = getPowBit;
 /**
+ * 获取小数的小数位数位数
+ * @param data
+ */
+function getDecimalNum(data) {
+    var decimal = 0;
+    var num = data;
+    while (isContainDecimal(num)) {
+        num = num * 10;
+        decimal++;
+    }
+    return decimal;
+}
+exports.getDecimalNum = getDecimalNum;
+/**
  * 是否包含小数
  * @param data
  */
@@ -72,18 +86,20 @@ exports.isContainInt = isContainInt;
  * 相对于参考值的倍数
  * 例如 1000 相对于 10000是0.1 那么最小需要的小数位数就是1
  * 这样就可以确保完整显示出所有有效的小数位数
+ * 对于小数位数，直接取interval的小数位数
  * @param min
  * @param reference
+ * @param interval
  * @param unit
  */
-function getDecimal(min, reference, unit) {
+function getDecimal(min, reference, interval, unit) {
     var decimal;
     var isMinContainDecimal = isContainDecimal(min);
     var isReferenceContainDecimal = isContainDecimal(reference);
-    if (isMinContainDecimal || isReferenceContainDecimal) {
-        var minPowBit = Math.abs(getPowBit(min));
-        var referencePowBit = Math.abs(getPowBit(reference));
-        decimal = Math.max(minPowBit, referencePowBit);
+    if (isContainDecimal(interval)) {
+        var minDecimal = getDecimalNum(min);
+        var referenceDecimal = getDecimalNum(reference);
+        decimal = getDecimalNum(interval);
     }
     else {
         if (min > reference || isEmpty(unit.unit) || min == 0) {

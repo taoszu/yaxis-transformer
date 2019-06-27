@@ -179,7 +179,7 @@ var YAxisTransformer = /** @class */ (function () {
         var reference = unitFollowMax ? this._maxData : this._minData;
         var min = this._minData < interval ? this._minData : interval;
         // 处理小数位数
-        adviceDecimal = AxisHelper.getDecimal(min, reference, unit);
+        adviceDecimal = AxisHelper.getDecimal(min, reference, interval, unit);
         if (!decimal) {
             decimal = adviceDecimal;
         }
