@@ -97,11 +97,11 @@ export function isContainInt(data: number) {
 export function getDecimal(min: number, reference:number, interval:number, unit:Unit) {
     let decimal
     const isMinContainDecimal = isContainDecimal(min)
-    const isReferenceContainDecimal = isContainDecimal(reference)
-    if(isContainDecimal(interval)) {
+    const isIntervalContainDecimal = isContainDecimal(interval)
+    if(isMinContainDecimal || isIntervalContainDecimal) {
         const minDecimal = getDecimalNum(min)
-        const referenceDecimal = getDecimalNum(reference)
-        decimal = getDecimalNum(interval)
+        const intervalDecimal = getDecimalNum(interval)
+        decimal = Math.max(minDecimal, intervalDecimal)
 
     } else {
         if(min > reference || isEmpty(unit.unit) || min == 0) {

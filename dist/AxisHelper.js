@@ -96,10 +96,11 @@ function getDecimal(min, reference, interval, unit) {
     var decimal;
     var isMinContainDecimal = isContainDecimal(min);
     var isReferenceContainDecimal = isContainDecimal(reference);
-    if (isContainDecimal(interval)) {
+    var isIntervalContainDecimal = isContainDecimal(interval);
+    if (isMinContainDecimal || isReferenceContainDecimal || isIntervalContainDecimal) {
         var minDecimal = getDecimalNum(min);
-        var referenceDecimal = getDecimalNum(reference);
-        decimal = getDecimalNum(interval);
+        var intervalDecimal = getDecimalNum(interval);
+        decimal = Math.max(minDecimal, intervalDecimal);
     }
     else {
         if (min > reference || isEmpty(unit.unit) || min == 0) {

@@ -117,3 +117,19 @@ describe('yaxis transform test 6', () => {
      expect(transformResult.dataUnit).deep.equal(['-99.995%', '-99.990%', '-99.985%', '-99.980%']).deep
   });
 });
+
+
+describe('yaxis transform test 7', () => {
+  it('result ', () => {
+
+    const yaxisTransformer = new YaxisTransformer([0.5, 6.5])
+    let transformResult = yaxisTransformer
+     .withCount(3)
+     .withMinToZero(false)
+     .transform()
+
+     expect(transformResult.adviseDecimal).equal(1)
+     expect(transformResult.data).deep.equal([0.5, 2.5, 4.5, 6.5]).deep
+     expect(transformResult.dataUnit).deep.equal(['0.5', '2.5', '4.5', '6.5']).deep
+  });
+});
