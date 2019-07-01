@@ -8,6 +8,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var AxisHelper = __importStar(require("./AxisHelper"));
+var mathjs_1 = require("mathjs");
 var YAxisTransformer = /** @class */ (function () {
     function YAxisTransformer(values) {
         var _this = this;
@@ -198,6 +199,10 @@ var YAxisTransformer = /** @class */ (function () {
             else {
                 formatResult = formatRuler(result / unit.range, decimal);
             }
+            if (!this.keepZeroDecimal && Number(formatResult) == 0) {
+                result = 0;
+                formatResult = "0";
+            }
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit;
             }
@@ -239,14 +244,16 @@ var YAxisTransformer = /** @class */ (function () {
             var keepPart = Math.floor(minData / baseNum) * baseNum;
             var remainPart = minData - keepPart;
             var remainPowNum = AxisHelper.genPowNum(remainPart);
+            var result = keepPart;
             //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
             //否则直接舍弃处理的part
             if (intervalPowNum == remainPowNum) {
-                return keepPart + AxisHelper.findMinInterval(remainPart, baseGenStrategy);
+                var interval_1 = AxisHelper.findMinInterval(remainPart, baseGenStrategy);
+                // 计算保留的最大小数位数
+                var maxDecimal = Math.max(AxisHelper.getDecimalNum(interval_1), AxisHelper.getDecimalNum(keepPart));
+                result = Number(mathjs_1.bignumber(keepPart).add(mathjs_1.bignumber(interval_1)).toFixed(maxDecimal));
             }
-            else {
-                return keepPart;
-            }
+            return result;
         }
     };
     return YAxisTransformer;

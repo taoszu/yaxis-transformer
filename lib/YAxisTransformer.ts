@@ -1,4 +1,5 @@
 import * as AxisHelper from "./AxisHelper"
+import {bignumber} from 'mathjs';
 
 /**
  * 基准值生成策略
@@ -226,7 +227,9 @@ export class YAxisTransformer {
         const data: number[] = []
         const dataUnit: string[] = []
         for (let i = 0; i < _count + 1; i++) {
-            const result = this._minData + interval * i
+            let result = this._minData + interval * i
+            data.push(result)
+
             // 找单位
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result)
@@ -239,10 +242,14 @@ export class YAxisTransformer {
                 formatResult = formatRuler(result / unit.range, decimal)
             }
 
+            // 如果格式化之前不是0 格式化之后为0 也需要做处理
+            if(!this.keepZeroDecimal && Number(formatResult) == 0) {
+                result = 0
+                formatResult = "0"
+            }
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit
             }
-            data.push(result)
             dataUnit.push(formatResult)
         }
 
@@ -287,13 +294,17 @@ export class YAxisTransformer {
 
             let remainPart = minData - keepPart
             let remainPowNum = AxisHelper.genPowNum(remainPart)
+
+            let result = keepPart
             //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
             //否则直接舍弃处理的part
             if (intervalPowNum == remainPowNum) {
-                return keepPart + AxisHelper.findMinInterval(remainPart, baseGenStrategy)
-            } else {
-                return keepPart
+                const interval = AxisHelper.findMinInterval(remainPart, baseGenStrategy)
+                // 计算保留的最大小数位数
+                const maxDecimal = Math.max(AxisHelper.getDecimalNum(interval), AxisHelper.getDecimalNum(keepPart))
+                result = Number(bignumber(keepPart).add(bignumber(interval)).toFixed(maxDecimal))
             }
+            return result
         }
     }
 

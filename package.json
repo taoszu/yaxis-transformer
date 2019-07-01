@@ -1,6 +1,6 @@
 {
   "name": "yaxis-transformer",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "description": "yaxis data transformer",
   "main": "./dist/index.js",
   "scripts": {
@@ -23,9 +23,11 @@
   },
   "homepage": "https://github.com/taoszu/yaxis-transformer#readme",
   "devDependencies": {
+    "@types/mathjs": "^5.0.1",
     "chai": "^4.1.2",
     "coveralls": "^3.0.4",
     "istanbul": "^0.4.5",
+    "mathjs": "^6.0.2",
     "mocha": "^5.2.0",
     "typescript": "^3.0.3"
   }

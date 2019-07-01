@@ -95,9 +95,8 @@ exports.isContainInt = isContainInt;
 function getDecimal(min, reference, interval, unit) {
     var decimal;
     var isMinContainDecimal = isContainDecimal(min);
-    var isReferenceContainDecimal = isContainDecimal(reference);
     var isIntervalContainDecimal = isContainDecimal(interval);
-    if (isMinContainDecimal || isReferenceContainDecimal || isIntervalContainDecimal) {
+    if (isMinContainDecimal || isIntervalContainDecimal) {
         var minDecimal = getDecimalNum(min);
         var intervalDecimal = getDecimalNum(interval);
         decimal = Math.max(minDecimal, intervalDecimal);
