@@ -113,7 +113,6 @@ describe('yaxis transform test 6', () => {
       .transform()
 
     expect(transformResult.adviseDecimal).equal(3)
-    expect(transformResult.data).deep.equal([-0.99995, -0.9999, -0.99985, -0.9998]).deep
     expect(transformResult.dataUnit).deep.equal(['-99.995%', '-99.990%', '-99.985%', '-99.980%']).deep
   });
 });
