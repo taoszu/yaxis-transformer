@@ -17,6 +17,7 @@ export declare type TransformResult = {
     adviseDecimal: number;
     min: number;
     max: number;
+    unit: Unit;
 };
 export declare class YAxisTransformer {
     defaultBaseGenStrategy: (originInterval: number) => number[];
