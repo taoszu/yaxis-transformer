@@ -14,7 +14,7 @@ export type FormatRuler = (data:number, decimal:number) => string
 
 export type Unit = { range: number, unit: string }
 
-export type TransformResult = { data: number[], dataUnit: string[], adviseDecimal: number }
+export type TransformResult = { data: number[], dataUnit: string[], adviseDecimal: number, min:number, max:number }
 
 export class YAxisTransformer {
 
@@ -269,6 +269,8 @@ export class YAxisTransformer {
             data: data,
             dataUnit: dataUnit,
             adviseDecimal: adviceDecimal,
+            min: data[0],
+            max: data[data.length - 1]
         }
 
     }

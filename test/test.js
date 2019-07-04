@@ -189,6 +189,8 @@ describe('yaxis transform test 10', () => {
       .transform()
 
     expect(transformResult.adviseDecimal).equal(4)
+    expect(transformResult.min).equal(10000)
+    expect(transformResult.max).equal(200010000)
     expect(transformResult.dataUnit).deep.equal(['0.0001亿', '0.5001亿', '1.0001亿', '1.5001亿', '2.0001亿']).deep
 
   });

@@ -224,6 +224,8 @@ var YAxisTransformer = /** @class */ (function () {
             data: data,
             dataUnit: dataUnit,
             adviseDecimal: adviceDecimal,
+            min: data[0],
+            max: data[data.length - 1]
         };
     };
     YAxisTransformer.prototype.sortUnitSet = function () {
