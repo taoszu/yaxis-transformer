@@ -106,7 +106,7 @@ function getDecimal(min, reference, interval, unit) {
             decimal = 0;
         }
         else {
-            decimal = getPowBit(reference) - getPowBit(min);
+            decimal = getPowBit(unit.range) - getPowBit(min);
             decimal = Math.max(0, decimal);
         }
     }

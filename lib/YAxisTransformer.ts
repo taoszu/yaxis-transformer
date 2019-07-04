@@ -91,6 +91,11 @@ export class YAxisTransformer {
     private forceDecimal: number | undefined
 
     /**
+     * 保留的最大小数位数
+     */
+    private maxDecimal = 4
+
+    /**
      * 是否使用百分比
      */
     private usePercentUnit = false
@@ -145,6 +150,11 @@ export class YAxisTransformer {
 
     withForceDecimal(decimal: number) {
         this.forceDecimal = decimal
+        return this
+    }
+
+    withMaxDecimal(decimal: number) {
+        this.maxDecimal = decimal
         return this
     }
 
@@ -220,7 +230,9 @@ export class YAxisTransformer {
         let min = this._minData < interval ? this._minData : interval
         // 处理小数位数
         adviceDecimal = AxisHelper.getDecimal(min, reference, interval, unit)
+        // 如果没有强制小数位数，使用建议小数位数
         if (!decimal) {
+            adviceDecimal = Math.min(adviceDecimal, this.maxDecimal)
             decimal = adviceDecimal
         }
 

@@ -57,6 +57,10 @@ var YAxisTransformer = /** @class */ (function () {
         this.unitFollowMax = true;
         this.unitSet = this.defaultUnitSet;
         /**
+         * 保留的最大小数位数
+         */
+        this.maxDecimal = 4;
+        /**
          * 是否使用百分比
          */
         this.usePercentUnit = false;
@@ -123,6 +127,10 @@ var YAxisTransformer = /** @class */ (function () {
         this.forceDecimal = decimal;
         return this;
     };
+    YAxisTransformer.prototype.withMaxDecimal = function (decimal) {
+        this.maxDecimal = decimal;
+        return this;
+    };
     YAxisTransformer.prototype.withKeepZeroUnit = function (keepZeroUnit) {
         this.keepZeroUnit = keepZeroUnit;
         return this;
@@ -181,13 +189,16 @@ var YAxisTransformer = /** @class */ (function () {
         var min = this._minData < interval ? this._minData : interval;
         // 处理小数位数
         adviceDecimal = AxisHelper.getDecimal(min, reference, interval, unit);
+        // 如果没有强制小数位数，使用建议小数位数
         if (!decimal) {
+            adviceDecimal = Math.min(adviceDecimal, this.maxDecimal);
             decimal = adviceDecimal;
         }
         var data = [];
         var dataUnit = [];
         for (var i = 0; i < _count + 1; i++) {
             var result = this._minData + interval * i;
+            data.push(result);
             // 找单位
             if (!keepUnitSame && !usePercentUnit) {
                 unit = this.findUnit(result);
@@ -199,6 +210,7 @@ var YAxisTransformer = /** @class */ (function () {
             else {
                 formatResult = formatRuler(result / unit.range, decimal);
             }
+            // 如果格式化之前不是0 格式化之后为0 也需要做处理
             if (!this.keepZeroDecimal && Number(formatResult) == 0) {
                 result = 0;
                 formatResult = "0";
@@ -206,7 +218,6 @@ var YAxisTransformer = /** @class */ (function () {
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit;
             }
-            data.push(result);
             dataUnit.push(formatResult);
         }
         return {

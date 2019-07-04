@@ -1,6 +1,7 @@
 'use strict';
 const expect = require('chai').expect;
 const YaxisTransformer = require('../dist/YAxisTransformer').YAxisTransformer
+const AxisHelper = require('../dist/AxisHelper')
 
 describe('yaxis transform test 1', () => {
   it('result ', () => {
@@ -12,7 +13,10 @@ describe('yaxis transform test 1', () => {
       .withFormatRuler((data, decimal) => {
         return data.toFixed(decimal)
       })
-      .withUnitSet([{ range: 10000, unit: "万" }])
+      .withUnitSet([{
+        range: 10000,
+        unit: "万"
+      }])
       .transform()
 
     expect(transformResult.adviseDecimal).equal(2)
@@ -32,7 +36,10 @@ describe('yaxis transform test 2', () => {
       .withFormatRuler((data, decimal) => {
         return data.toFixed(decimal)
       })
-      .withUnitSet([{ range: 10000, unit: "万" }])
+      .withUnitSet([{
+        range: 10000,
+        unit: "万"
+      }])
       .transform()
 
     expect(transformResult.adviseDecimal).equal(0)
@@ -55,7 +62,10 @@ describe('yaxis transform test 3', () => {
       .withFormatRuler((data, decimal) => {
         return data.toFixed(decimal)
       })
-      .withUnitSet([{ range: 10000, unit: "万" }])
+      .withUnitSet([{
+        range: 10000,
+        unit: "万"
+      }])
       .transform()
 
     expect(transformResult.adviseDecimal).equal(0)
@@ -77,7 +87,10 @@ describe('yaxis transform test 4', () => {
       .withFormatRuler((data, decimal) => {
         return data.toFixed(decimal)
       })
-      .withUnitSet([{ range: 10000, unit: "万" }])
+      .withUnitSet([{
+        range: 10000,
+        unit: "万"
+      }])
       .transform()
 
     expect(transformResult.adviseDecimal).equal(0)
@@ -93,7 +106,10 @@ describe('yaxis transform test 5', () => {
     let transformResult = yaxisTransformer
       .withCount(3)
       .withMinToZero(true)
-      .withUnitSet([{ range: 10000, unit: "万" }])
+      .withUnitSet([{
+        range: 10000,
+        unit: "万"
+      }])
       .transform()
 
     expect(transformResult.adviseDecimal).equal(1)
@@ -101,22 +117,6 @@ describe('yaxis transform test 5', () => {
     expect(transformResult.dataUnit).deep.equal(['0', '0.1', '0.2', '0.3']).deep
   });
 });
-
-describe('yaxis transform test 6', () => {
-  it('result ', () => {
-
-    const yaxisTransformer = new YaxisTransformer([-0.99994, -0.99992, -0.99990, -0.99989])
-    let transformResult = yaxisTransformer
-      .withCount(3)
-      .withMinToZero(true)
-      .withPercentUnit()
-      .transform()
-
-    expect(transformResult.adviseDecimal).equal(3)
-    expect(transformResult.dataUnit).deep.equal(['-99.995%', '-99.990%', '-99.985%', '-99.980%']).deep
-  });
-});
-
 
 describe('yaxis transform test 7', () => {
   it('result ', () => {
@@ -153,5 +153,43 @@ describe('yaxis transform test 8', () => {
 
     expect(transformResult.adviseDecimal).equal(2)
     expect(transformResult.dataUnit).deep.equal(['-0.15', '-0.10', '-0.05', '0']).deep
+  });
+});
+
+
+describe('yaxis transform test 9', () => {
+  it('result ', () => {
+
+    const yaxisTransformer = new YaxisTransformer([
+      123456789,
+      10000
+    ])
+    let transformResult = yaxisTransformer
+      .withMinToZero(false)
+      .withMaxDecimal(3)
+      .withKeepZeroDecimal(false)
+      .transform()
+
+    expect(transformResult.adviseDecimal).equal(3)
+    expect(transformResult.dataUnit).deep.equal(['0', '0.500亿', '1.000亿', '1.500亿', '2.000亿']).deep
+  });
+});
+
+describe('yaxis transform test 10', () => {
+  it('result ', () => {
+
+    const yaxisTransformer = new YaxisTransformer([
+      123456789,
+      10000
+    ])
+
+    let transformResult = yaxisTransformer
+      .withMinToZero(false)
+      .withKeepZeroDecimal(false)
+      .transform()
+
+    expect(transformResult.adviseDecimal).equal(4)
+    expect(transformResult.dataUnit).deep.equal(['0.0001亿', '0.5001亿', '1.0001亿', '1.5001亿', '2.0001亿']).deep
+
   });
 });

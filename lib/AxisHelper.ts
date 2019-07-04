@@ -107,7 +107,7 @@ export function getDecimal(min: number, reference:number, interval:number, unit:
         if(min > reference || isEmpty(unit.unit) || min == 0) {
             decimal = 0
         } else {
-            decimal = getPowBit(reference) - getPowBit(min)
+            decimal = getPowBit(unit.range) - getPowBit(min)
             decimal = Math.max(0, decimal)
         }
     }

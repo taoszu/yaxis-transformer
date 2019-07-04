@@ -67,6 +67,10 @@ export declare class YAxisTransformer {
      */
     private forceDecimal;
     /**
+     * 保留的最大小数位数
+     */
+    private maxDecimal;
+    /**
      * 是否使用百分比
      */
     private usePercentUnit;
@@ -78,6 +82,7 @@ export declare class YAxisTransformer {
     withBaseGenStrategy(baseGenStrategy: Strategy): this;
     withFormatRuler(formatRuler: FormatRuler): this;
     withForceDecimal(decimal: number): this;
+    withMaxDecimal(decimal: number): this;
     withKeepZeroUnit(keepZeroUnit: boolean): this;
     withKeepUnitSame(keepUnitSame: boolean): this;
     withUnitFollowMax(unitFollowMax: boolean): this;
