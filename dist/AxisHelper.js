@@ -60,13 +60,9 @@ exports.getPowBit = getPowBit;
  * @param data
  */
 function getDecimalNum(data) {
-    var decimal = 0;
-    var num = data;
-    while (isContainDecimal(num)) {
-        num = num * 10;
-        decimal++;
-    }
-    return decimal;
+    var dataStr = data.toString();
+    var decimalIndex = dataStr.indexOf(".");
+    return decimalIndex < 0 ? 0 : dataStr.length - decimalIndex - 1;
 }
 exports.getDecimalNum = getDecimalNum;
 /**

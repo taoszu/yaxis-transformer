@@ -208,6 +208,9 @@ describe('yaxis transform test 11', () => {
       .withKeepZeroDecimal(false)
       .transform()
 
+    expect(AxisHelper.getDecimalNum(1)).equal(0)
+    expect(AxisHelper.getDecimalNum(-0.14)).equal(2)
+    expect(AxisHelper.getDecimalNum(1.567)).equal(3)
     expect(transformResult.dataUnit).deep.equal(['-0.2', '-0.1', '0', '0.1', '0.2']).deep
 
   });

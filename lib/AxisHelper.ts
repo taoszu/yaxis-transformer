@@ -1,4 +1,5 @@
 import {Strategy, Unit} from "./YAxisTransformer";
+import { bignumber } from "mathjs";
 export const minUnit = {range:1, unit:""}
 export const percentUnit = {range:0.01, unit:"%"}
 
@@ -62,13 +63,9 @@ export function getPowBit(data: number) {
  * @param data 
  */
 export function getDecimalNum(data:number) {
-    let decimal = 0
-    let num = data
-    while(isContainDecimal(num)) {
-        num = num * 10
-        decimal ++
-    }
-    return decimal
+    let dataStr = data.toString()
+    let decimalIndex = dataStr.indexOf(".");
+    return decimalIndex < 0 ? 0 : dataStr.length - decimalIndex - 1;
 }
 
 /**
