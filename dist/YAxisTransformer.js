@@ -14,7 +14,11 @@ var YAxisTransformer = /** @class */ (function () {
         var _this = this;
         this.defaultBaseGenStrategy = function (originInterval) {
             var base = AxisHelper.genPowNum(originInterval);
-            return [10 * base, 5 * base, 2 * base, base];
+            var baseArray = [10 * base, 5 * base, 2 * base, base];
+            if (originInterval < 0) {
+                baseArray = baseArray.reverse();
+            }
+            return baseArray;
         };
         this.defaultFormatRuler = function (data, decimal) {
             return data.toFixed(decimal);
@@ -153,18 +157,24 @@ var YAxisTransformer = /** @class */ (function () {
     };
     YAxisTransformer.prototype.transform = function () {
         this.sortUnitSet();
-        var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
+        var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, maxDecimal = _a.maxDecimal, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
         if (_count <= 0) {
             throw "count should >= 0";
         }
         if (forceDecimal && forceDecimal < 0) {
-            throw "forceDecimal should > 0";
+            throw "forceDecimal: " + forceDecimal + " < 0";
+        }
+        if (maxDecimal < 0) {
+            throw "maxDecimal: " + maxDecimal + " < 0";
         }
         if (this._maxData == -Number.MAX_VALUE) {
             throw "maxData is invalid";
         }
         if (this._minData == Number.MAX_VALUE) {
             throw "minData is invalid";
+        }
+        if (this._minData > this._maxData) {
+            throw "minData: " + this._minData + " >  maxData: " + this._maxData;
         }
         var unit;
         var decimal = forceDecimal;
@@ -255,13 +265,19 @@ var YAxisTransformer = /** @class */ (function () {
         else {
             var intervalPowNum = AxisHelper.genPowNum(baseInterval);
             var baseNum = intervalPowNum * 10;
-            var keepPart = Math.floor(minData / baseNum) * baseNum;
+            var keepPart = void 0;
+            if (minData >= 0) {
+                keepPart = Math.floor(minData / baseNum) * baseNum;
+            }
+            else {
+                keepPart = -Math.floor(Math.abs(minData) / baseNum) * baseNum;
+            }
             var remainPart = minData - keepPart;
             var remainPowNum = AxisHelper.genPowNum(remainPart);
             var result = keepPart;
             //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
             //否则直接舍弃处理的part
-            if (intervalPowNum == remainPowNum) {
+            if (Math.abs(intervalPowNum) == Math.abs(remainPowNum)) {
                 var interval_1 = AxisHelper.findMinInterval(remainPart, baseGenStrategy);
                 // 计算保留的最大小数位数
                 var maxDecimal = Math.max(AxisHelper.getDecimalNum(interval_1), AxisHelper.getDecimalNum(keepPart));

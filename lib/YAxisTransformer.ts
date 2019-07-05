@@ -1,5 +1,5 @@
 import * as AxisHelper from "./AxisHelper"
-import {bignumber} from 'mathjs';
+import { bignumber } from 'mathjs';
 
 /**
  * 基准值生成策略
@@ -10,25 +10,29 @@ export type Strategy = (interval: number) => number[]
  * 格式化数据的规则
  * 应用于对四舍五入精度有要求的场景
  */
-export type FormatRuler = (data:number, decimal:number) => string
+export type FormatRuler = (data: number, decimal: number) => string
 
 export type Unit = { range: number, unit: string }
 
-export type TransformResult = { data: number[], dataUnit: string[], adviseDecimal: number, min:number, max:number, unit:Unit}
+export type TransformResult = { data: number[], dataUnit: string[], adviseDecimal: number, min: number, max: number, unit: Unit }
 
 export class YAxisTransformer {
 
-   defaultBaseGenStrategy = (originInterval: number) => {
+    defaultBaseGenStrategy = (originInterval: number) => {
         let base = AxisHelper.genPowNum(originInterval)
-        return [10 * base, 5 * base, 2 * base, base]
+        let baseArray = [10 * base, 5 * base, 2 * base, base]
+        if (originInterval < 0) {
+            baseArray = baseArray.reverse()
+        }
+        return baseArray
     }
-    defaultFormatRuler = (data:number, decimal:number) => {
+    defaultFormatRuler = (data: number, decimal: number) => {
         return data.toFixed(decimal)
     }
-    defaultUnitSet = [{range: 10000, unit: "万"}, {range: 100000000, unit: "亿"}]
+    defaultUnitSet = [{ range: 10000, unit: "万" }, { range: 100000000, unit: "亿" }]
 
-    private _maxData:number = - Number.MAX_VALUE
-    private _minData:number = Number.MAX_VALUE
+    private _maxData: number = - Number.MAX_VALUE
+    private _minData: number = Number.MAX_VALUE
 
     get maxData() {
         return this._maxData
@@ -46,7 +50,7 @@ export class YAxisTransformer {
     /**
      * 格式化数据的规则
      */
-    private formatRuler:FormatRuler = this.defaultFormatRuler
+    private formatRuler: FormatRuler = this.defaultFormatRuler
 
     /**
      *  生成间距数目
@@ -143,7 +147,7 @@ export class YAxisTransformer {
         return this
     }
 
-    withFormatRuler(formatRuler:FormatRuler) {
+    withFormatRuler(formatRuler: FormatRuler) {
         this.formatRuler = formatRuler
         return this
     }
@@ -178,7 +182,7 @@ export class YAxisTransformer {
         return this
     }
 
-    withKeepZeroDecimal(keepZeroDecimal:boolean) {
+    withKeepZeroDecimal(keepZeroDecimal: boolean) {
         this.keepZeroDecimal = keepZeroDecimal
         return this
     }
@@ -186,23 +190,30 @@ export class YAxisTransformer {
     transform(): TransformResult {
         this.sortUnitSet()
         let {
-            _count, keepUnitSame, usePercentUnit,
+            _count, keepUnitSame, usePercentUnit, maxDecimal,
             unitFollowMax, forceDecimal, keepZeroUnit, baseGenStrategy,
             formatRuler, withKeepZeroDecimal
         } = this
 
-        if(_count <= 0) {
+        if (_count <= 0) {
             throw "count should >= 0"
         }
-        if(forceDecimal && forceDecimal < 0) {
-            throw "forceDecimal should > 0"
+        if (forceDecimal && forceDecimal < 0) {
+            throw `forceDecimal: ${forceDecimal} < 0`
         }
 
-        if(this._maxData == - Number.MAX_VALUE) {
+        if (maxDecimal < 0) {
+            throw `maxDecimal: ${maxDecimal} < 0`
+        }
+
+        if (this._maxData == - Number.MAX_VALUE) {
             throw "maxData is invalid"
         }
-        if(this._minData ==  Number.MAX_VALUE) {
+        if (this._minData == Number.MAX_VALUE) {
             throw "minData is invalid"
+        }
+        if(this._minData > this._maxData) {
+            throw `minData: ${this._minData} >  maxData: ${this._maxData}`
         }
 
         let unit
@@ -216,7 +227,7 @@ export class YAxisTransformer {
         interval = (this._maxData - this._minData) / _count
         interval = AxisHelper.findInterval(interval, baseGenStrategy)
         this._maxData = AxisHelper.genMaxData(this._minData, interval, _count)
-    
+
         // 找出单位
         unit = AxisHelper.minUnit
         if (usePercentUnit) {
@@ -226,7 +237,7 @@ export class YAxisTransformer {
         }
 
         // 找出参考值
-        let reference = unitFollowMax ? this._maxData : this._minData 
+        let reference = unitFollowMax ? this._maxData : this._minData
         let min = this._minData < interval ? this._minData : interval
         // 处理小数位数
         adviceDecimal = AxisHelper.getDecimal(min, reference, interval, unit)
@@ -248,14 +259,14 @@ export class YAxisTransformer {
             }
 
             let formatResult
-            if(result == 0 && !this.keepZeroDecimal) {
+            if (result == 0 && !this.keepZeroDecimal) {
                 formatResult = "0"
             } else {
                 formatResult = formatRuler(result / unit.range, decimal)
             }
 
             // 如果格式化之前不是0 格式化之后为0 也需要做处理
-            if(!this.keepZeroDecimal && Number(formatResult) == 0) {
+            if (!this.keepZeroDecimal && Number(formatResult) == 0) {
                 result = 0
                 formatResult = "0"
             }
@@ -277,14 +288,14 @@ export class YAxisTransformer {
     }
 
     private sortUnitSet() {
-        let {unitSet} = this
+        let { unitSet } = this
         unitSet.sort((one, other) => {
             return one.range - other.range
         })
     }
 
     private findUnit(data: number) {
-        let {unitSet} = this
+        let { unitSet } = this
         let unit = AxisHelper.minUnit
         unitSet.forEach(item => {
             if (data >= item.range) {
@@ -295,7 +306,7 @@ export class YAxisTransformer {
     }
 
     private handleMin(maxData: number, minData: number) {
-        let {_count, minToZero, baseGenStrategy} = this
+        let { _count, minToZero, baseGenStrategy } = this
 
         let interval = (maxData - minData) / _count
         let baseInterval = AxisHelper.findInterval(interval, this.baseGenStrategy)
@@ -305,15 +316,22 @@ export class YAxisTransformer {
         } else {
             let intervalPowNum = AxisHelper.genPowNum(baseInterval)
             let baseNum = intervalPowNum * 10
-            let keepPart = Math.floor(minData / baseNum) * baseNum
+
+            let keepPart
+            if (minData >= 0) {
+                keepPart = Math.floor(minData / baseNum) * baseNum
+            } else {
+                keepPart = - Math.floor(Math.abs(minData) / baseNum) * baseNum
+            }
 
             let remainPart = minData - keepPart
             let remainPowNum = AxisHelper.genPowNum(remainPart)
 
+
             let result = keepPart
             //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
             //否则直接舍弃处理的part
-            if (intervalPowNum == remainPowNum) {
+            if (Math.abs(intervalPowNum) == Math.abs(remainPowNum)) {
                 const interval = AxisHelper.findMinInterval(remainPart, baseGenStrategy)
                 // 计算保留的最大小数位数
                 const maxDecimal = Math.max(AxisHelper.getDecimalNum(interval), AxisHelper.getDecimalNum(keepPart))

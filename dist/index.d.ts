@@ -1,2 +1,3 @@
 import YAxisTransformer from './YAxisTransformer';
-export { YAxisTransformer };
+import * as AxisHelper from "./AxisHelper";
+export { YAxisTransformer, AxisHelper };

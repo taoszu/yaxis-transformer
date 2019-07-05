@@ -196,3 +196,19 @@ describe('yaxis transform test 10', () => {
 
   });
 });
+
+describe('yaxis transform test 11', () => {
+  it('result ', () => {
+
+    const yaxisTransformer = new YaxisTransformer()
+
+    let transformResult = yaxisTransformer
+      .withMinMaxData(-0.142, 0.181)
+      .withMinToZero(false)
+      .withKeepZeroDecimal(false)
+      .transform()
+
+    expect(transformResult.dataUnit).deep.equal(['-0.2', '-0.1', '0', '0.1', '0.2']).deep
+
+  });
+});
