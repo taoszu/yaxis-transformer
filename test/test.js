@@ -215,3 +215,17 @@ describe('yaxis transform test 11', () => {
 
   });
 });
+
+describe('yaxis transform test 12', () => {
+  it('test positive ', () => {
+
+    const yaxisTransformer = new YaxisTransformer()
+
+    let transformResult = yaxisTransformer
+      .withMinMaxData(-0.52, 1.5)
+      .transform()
+
+    expect(transformResult.dataUnit).deep.equal(['-1', '0', '1', '2', '3']).deep
+
+  });
+});

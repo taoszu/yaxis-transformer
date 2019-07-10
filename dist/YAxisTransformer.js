@@ -262,6 +262,9 @@ var YAxisTransformer = /** @class */ (function () {
         if (minData > 0 && baseInterval > minData) {
             return minToZero ? 0 : AxisHelper.findMinInterval(minData, baseGenStrategy);
         }
+        else if (minData < 0 && baseInterval > Math.abs(minData)) {
+            return AxisHelper.findMinInterval(minData, baseGenStrategy);
+        }
         else {
             var intervalPowNum = AxisHelper.genPowNum(baseInterval);
             var baseNum = intervalPowNum * 10;

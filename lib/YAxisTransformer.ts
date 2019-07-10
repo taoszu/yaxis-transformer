@@ -212,7 +212,7 @@ export class YAxisTransformer {
         if (this._minData == Number.MAX_VALUE) {
             throw "minData is invalid"
         }
-        if(this._minData > this._maxData) {
+        if (this._minData > this._maxData) {
             throw `minData: ${this._minData} >  maxData: ${this._maxData}`
         }
 
@@ -313,6 +313,10 @@ export class YAxisTransformer {
 
         if (minData > 0 && baseInterval > minData) {
             return minToZero ? 0 : AxisHelper.findMinInterval(minData, baseGenStrategy)
+
+        } else if (minData < 0 && baseInterval > Math.abs(minData)) {
+            return AxisHelper.findMinInterval(minData, baseGenStrategy)
+            
         } else {
             let intervalPowNum = AxisHelper.genPowNum(baseInterval)
             let baseNum = intervalPowNum * 10
@@ -327,12 +331,12 @@ export class YAxisTransformer {
             let remainPart = minData - keepPart
             let remainPowNum = AxisHelper.genPowNum(remainPart)
 
-
             let result = keepPart
             //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
             //否则直接舍弃处理的part
             if (Math.abs(intervalPowNum) == Math.abs(remainPowNum)) {
                 const interval = AxisHelper.findMinInterval(remainPart, baseGenStrategy)
+
                 // 计算保留的最大小数位数
                 const maxDecimal = Math.max(AxisHelper.getDecimalNum(interval), AxisHelper.getDecimalNum(keepPart))
                 result = Number(bignumber(keepPart).add(bignumber(interval)).toFixed(maxDecimal))
