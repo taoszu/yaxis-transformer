@@ -11,6 +11,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var YAxisTransformer_1 = __importDefault(require("./YAxisTransformer"));
-exports.YAxisTransformer = YAxisTransformer_1.default;
 var AxisHelper = __importStar(require("./AxisHelper"));
-exports.AxisHelper = AxisHelper;
+exports.default = {
+    YAxisTransformer: YAxisTransformer_1.default,
+    AxisHelper: AxisHelper
+};
+function tranform(min, max) {
+    var yAxisTransformer = new YAxisTransformer_1.default().withMinMaxData(min, max);
+    return yAxisTransformer.transform();
+}
+exports.tranform = tranform;
