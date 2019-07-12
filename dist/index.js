@@ -16,8 +16,11 @@ exports.default = {
     YAxisTransformer: YAxisTransformer_1.default,
     AxisHelper: AxisHelper
 };
-function tranform(min, max) {
+function transform(min, max, isPercent) {
     var yAxisTransformer = new YAxisTransformer_1.default().withMinMaxData(min, max);
+    if (isPercent) {
+        yAxisTransformer.withPercentUnit();
+    }
     return yAxisTransformer.transform();
 }
-exports.tranform = tranform;
+exports.transform = transform;

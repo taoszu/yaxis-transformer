@@ -5,7 +5,11 @@ export default {
     AxisHelper
 }
 
-export function tranform(min:number, max:number) {
+export function transform(min:number, max:number, isPercent:boolean) {
     const yAxisTransformer = new YAxisTransformer().withMinMaxData(min, max)
+    if(isPercent) {
+        yAxisTransformer.withPercentUnit()
+    }
+
     return yAxisTransformer.transform()
 }

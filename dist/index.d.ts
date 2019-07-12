@@ -5,4 +5,4 @@ declare const _default: {
     AxisHelper: typeof AxisHelper;
 };
 export default _default;
-export declare function tranform(min: number, max: number): import("./YAxisTransformer").TransformResult;
+export declare function transform(min: number, max: number, isPercent: boolean): import("./YAxisTransformer").TransformResult;

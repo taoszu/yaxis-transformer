@@ -469,18 +469,21 @@
 	    YAxisTransformer: YAxisTransformer_1$1.default,
 	    AxisHelper: AxisHelper$1
 	};
-	function tranform(min, max) {
+	function transform(min, max, isPercent) {
 	    var yAxisTransformer = new YAxisTransformer_1$1.default().withMinMaxData(min, max);
+	    if (isPercent) {
+	        yAxisTransformer.withPercentUnit();
+	    }
 	    return yAxisTransformer.transform();
 	}
-	exports.tranform = tranform;
+	exports.transform = transform;
 	});
 
 	var index = unwrapExports(dist);
-	var dist_1 = dist.tranform;
+	var dist_1 = dist.transform;
 
 	exports.default = index;
-	exports.tranform = dist_1;
+	exports.transform = dist_1;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 

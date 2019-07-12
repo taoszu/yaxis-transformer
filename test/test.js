@@ -222,7 +222,7 @@ describe('yaxis transform test 12', () => {
     const yaxisTransformer = new YaxisTransformer()
 
     let transformResult = yaxisTransformer
-      .withMinMaxData(-0.52, 1.5)
+      .withMinMaxData(9.7457674E9, 9.7457674E9)
       .transform()
 
     expect(transformResult.dataUnit).deep.equal(['-1', '0', '1', '2', '3']).deep
