@@ -7,8 +7,8 @@ export function genMaxData(minData:number, interval:number, count:number) {
     return  minData + interval * count
 }
 
-export function findInterval(range: number, strategyFunc:Strategy) {
-    let originInterval = range
+export function findInterval(interval: number, strategyFunc:Strategy) {
+    let originInterval = interval
     let factorList = strategyFunc(originInterval)
     for (let i = 1; i < factorList.length; i++) {
         if (originInterval > factorList[i]) {
