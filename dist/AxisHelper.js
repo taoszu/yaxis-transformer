@@ -6,8 +6,8 @@ function genMaxData(minData, interval, count) {
     return minData + interval * count;
 }
 exports.genMaxData = genMaxData;
-function findInterval(range, strategyFunc) {
-    var originInterval = range;
+function findInterval(interval, strategyFunc) {
+    var originInterval = interval;
     var factorList = strategyFunc(originInterval);
     for (var i = 1; i < factorList.length; i++) {
         if (originInterval > factorList[i]) {
@@ -60,11 +60,37 @@ exports.getPowBit = getPowBit;
  * @param data
  */
 function getDecimalNum(data) {
-    var dataStr = data.toString();
+    var dataStr = Math.abs(data).toString();
     var decimalIndex = dataStr.indexOf(".");
     return decimalIndex < 0 ? 0 : dataStr.length - decimalIndex - 1;
 }
 exports.getDecimalNum = getDecimalNum;
+/**
+ * 绝对值小于1的小数转为绝对值大于1的数 最小需要的小数位数
+ */
+function getMinDecimalToInt(data) {
+    data = Math.abs(data);
+    var decimal = 0;
+    while (data < 1) {
+        decimal++;
+        data *= 10;
+    }
+    return decimal;
+}
+exports.getMinDecimalToInt = getMinDecimalToInt;
+/**
+ * 小于1的小数扩大转为大于1的数
+ * @param data
+ */
+function decimalToInt(data) {
+    var decimal = 0;
+    while (data < 1) {
+        decimal++;
+        data *= 10;
+    }
+    return data;
+}
+exports.decimalToInt = decimalToInt;
 /**
  * 是否包含小数
  * @param data

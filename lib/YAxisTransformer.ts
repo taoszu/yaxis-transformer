@@ -18,14 +18,33 @@ export type TransformResult = { data: number[], dataUnit: string[], adviseDecima
 
 export class YAxisTransformer {
 
-    defaultBaseGenStrategy = (originInterval: number) => {
+    defaultBaseGenStrategy2 = (originInterval: number) => {
         let base = AxisHelper.genPowNum(originInterval)
-        let baseArray = [10 * base, 5 * base, 2 * base, base]
+        let baseArray = [10 * base, 2 * base, base]
         if (originInterval < 0) {
             baseArray = baseArray.reverse()
         }
         return baseArray
     }
+
+    defaultBaseGenStrategy5 = (originInterval: number) => {
+        let base = AxisHelper.genPowNum(originInterval)
+        let baseArray = [10 * base, 5 * base, base]
+        if (originInterval < 0) {
+            baseArray = baseArray.reverse()
+        }
+        return baseArray
+    }
+
+    defaultBaseGenStrategy = (originInterval: number) => {
+        let base = AxisHelper.genPowNum(originInterval)
+        let baseArray = [10 * base, 5 * base, 2* base, base]
+        if (originInterval < 0) {
+            baseArray = baseArray.reverse()
+        }
+        return baseArray
+    }
+
     defaultFormatRuler = (data: number, decimal: number) => {
         return data.toFixed(decimal)
     }
@@ -219,14 +238,16 @@ export class YAxisTransformer {
         let unit
         let decimal = forceDecimal
         let adviceDecimal
-        let interval
+        let interval =  this.preHandle()
 
-        // 处理最小值 
+         // 处理最小值 
         // 找出规整间距
         this._minData = this.handleMin(this._maxData, this._minData)
         interval = (this._maxData - this._minData) / _count
         interval = AxisHelper.findInterval(interval, baseGenStrategy)
         this._maxData = AxisHelper.genMaxData(this._minData, interval, _count)
+ 
+
 
         // 找出单位
         unit = AxisHelper.minUnit
@@ -303,6 +324,95 @@ export class YAxisTransformer {
             }
         })
         return unit
+    }
+
+    private preHandle() {
+        let {_minData, _maxData, _count} = this
+        let interval = (_maxData - _minData) / _count
+
+        let min2 = this.keepNumFactor(_minData, 2, false)
+        let max2 = this.keepNumFactor(_maxData, 2, true)
+        let interval2 = max2 - min2
+        const result2 = this.chooseInterval(min2, max2, interval2, this.defaultBaseGenStrategy2)
+
+        let min5 = this.keepNumFactor(_minData, 5, false)
+        let max5 = this.keepNumFactor(_maxData, 5, true)
+        let interval5 = max5 - min5
+        const result5 = this.chooseInterval(min5, max5, interval5, this.defaultBaseGenStrategy5)
+
+        if(result2.interval < result5.interval) {
+            _minData = result2.min
+            interval = result2.interval
+        } else {
+            _minData = result5.min
+            interval = result5.interval
+        }
+
+        let newArray = []
+        for(let i = 0; i < this._count + 1; i ++) {
+            newArray.push(_minData + i * interval)
+        }
+        console.log(this._minData + " " + this._maxData + " [ " + newArray.join(" : ") + " ]" + " new ")
+        
+        //this._minData = _minData
+        //this._maxData = newArray[newArray.length - 1]
+        return interval
+    }
+
+    private chooseInterval(minData:number, maxData:number, interval:number, baseGenStrategy:Strategy) {
+        let newInterval =  AxisHelper.findInterval(interval/this._count, baseGenStrategy)
+        let newMinData = minData
+
+        if(newMinData > 0 && newMinData < newInterval) {
+            newMinData = 0
+            newInterval = this.takeInterval(maxData) 
+        }
+    
+        return {
+            interval: newInterval,
+            min:newMinData 
+        }
+    }
+
+    private takeInterval(maxData:number) {
+        const result = maxData / this._count
+        return this.keepNumFactor(result, 20, true)
+    }
+
+    /**
+     * 保持数字取模之后是factor的倍数
+     * isCeil true说明返回值大于等于num 
+     * 
+     */
+    keepNumFactor(numOrigin:number, factor:number, isCeil:boolean) {
+        const isPositive = numOrigin < 0
+        const decimalNum = AxisHelper.getMinDecimalToInt(numOrigin)
+        const num = Math.abs(numOrigin) * Math.pow(10, decimalNum)
+
+        const numPow = AxisHelper.genPowNum(num)
+        if(numPow >= 10) {
+            factor = factor * (numPow /10)
+        }
+    
+        const remainPart = num % factor
+        const keepPart = num - remainPart
+        let result
+        if(remainPart == 0) {
+            result = num
+        } else {
+            result = keepPart
+            if((isCeil !== isPositive) && remainPart != 0) {
+                result += factor
+            }
+        }
+        // 如果向上取并且原始值不是mod的倍数 则加上factor
+      
+
+   //     console.log(num + " keep: " + keepPart + " " + factor)
+        if(decimalNum > 0) {
+            result = result / (Math.pow(10, decimalNum))
+        }
+        return isPositive ? -result : result
     }
 
     private handleMin(maxData: number, minData: number) {

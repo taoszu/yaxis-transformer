@@ -63,9 +63,35 @@ export function getPowBit(data: number) {
  * @param data 
  */
 export function getDecimalNum(data:number) {
-    let dataStr = data.toString()
+    let dataStr = Math.abs(data).toString()
     let decimalIndex = dataStr.indexOf(".");
     return decimalIndex < 0 ? 0 : dataStr.length - decimalIndex - 1;
+}
+
+/**
+ * 绝对值小于1的小数转为绝对值大于1的数 最小需要的小数位数
+ */
+export function getMinDecimalToInt(data:number) {
+    data = Math.abs(data)
+    let decimal = 0
+    while(data < 1) {
+        decimal ++
+        data *= 10
+    }
+    return decimal
+}
+
+/**
+ * 小于1的小数扩大转为大于1的数
+ * @param data 
+ */
+export function decimalToInt(data:number) {
+    let decimal = 0
+    while(data  < 1) {
+        decimal ++
+        data *= 10
+    }
+    return data
 }
 
 /**

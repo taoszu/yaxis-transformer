@@ -3,6 +3,7 @@ const expect = require('chai').expect;
 const YaxisTransformer = require('../dist/YAxisTransformer').YAxisTransformer
 const AxisHelper = require('../dist/AxisHelper')
 
+/* 
 describe('yaxis transform test 1', () => {
   it('result ', () => {
 
@@ -226,6 +227,60 @@ describe('yaxis transform test 12', () => {
       .transform()
 
     expect(transformResult.dataUnit).deep.equal(['-1', '0', '1', '2', '3']).deep
+
+  });
+}); */
+
+
+describe('yaxis transform test 13', () => {
+  it('result ', () => {
+
+    const array = [
+      {x:31.9, y:108},
+      {x:0.363, y:0.667},
+      {x:0.34, y:0.439},
+      {x:0.035, y:0.439},
+      {x:35, y:439},
+    ]
+
+    const array1 = [
+      -16.4,
+      16.4,
+      0.6,
+      5,
+      -6,
+      6,
+      0.53,
+      0.625,
+      6.25,
+      -0.53,
+      1.53,
+      53,
+      153,
+      0.22,
+      1.22,
+      91.22,
+      250.6,
+    ]
+    const yaxisTransformer = new YaxisTransformer()
+    array1.forEach(item => {
+      //    console.log(item + " ->max " + yaxisTransformer.takeInterval(item * 4))
+    //  console.log(item + " -> min " + yaxisTransformer.keepNumFactor(item, 5, false))
+      //console.log(item + " -> max " + yaxisTransformer.keepNumFactor(item, 5, true))
+    })
+
+    array.forEach(item => {
+      let transformResult = yaxisTransformer
+        .withMinMaxData(item.x, item.y)
+        .withCount(4)
+        .transform()
+       console.log(item.x + " " + item.y + " [ " + transformResult.dataUnit.join(" : ") + " ]" + "\n")
+    })
+
+
+
+
+    //expect(transformResult.dataUnit).deep.equal(['0.10', '0.12', '0.14', '0.16', '0.18']).deep
 
   });
 });

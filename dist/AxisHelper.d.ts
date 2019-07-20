@@ -8,7 +8,7 @@ export declare const percentUnit: {
     unit: string;
 };
 export declare function genMaxData(minData: number, interval: number, count: number): number;
-export declare function findInterval(range: number, strategyFunc: Strategy): number;
+export declare function findInterval(interval: number, strategyFunc: Strategy): number;
 /**
  * 查找最小值需格式化部分的值
  * @param remainPart
@@ -32,6 +32,15 @@ export declare function getPowBit(data: number): number;
  * @param data
  */
 export declare function getDecimalNum(data: number): number;
+/**
+ * 绝对值小于1的小数转为绝对值大于1的数 最小需要的小数位数
+ */
+export declare function getMinDecimalToInt(data: number): number;
+/**
+ * 小于1的小数扩大转为大于1的数
+ * @param data
+ */
+export declare function decimalToInt(data: number): number;
 /**
  * 是否包含小数
  * @param data

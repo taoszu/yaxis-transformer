@@ -12,6 +12,22 @@ var mathjs_1 = require("mathjs");
 var YAxisTransformer = /** @class */ (function () {
     function YAxisTransformer(values) {
         var _this = this;
+        this.defaultBaseGenStrategy2 = function (originInterval) {
+            var base = AxisHelper.genPowNum(originInterval);
+            var baseArray = [10 * base, 2 * base, base];
+            if (originInterval < 0) {
+                baseArray = baseArray.reverse();
+            }
+            return baseArray;
+        };
+        this.defaultBaseGenStrategy5 = function (originInterval) {
+            var base = AxisHelper.genPowNum(originInterval);
+            var baseArray = [10 * base, 5 * base, base];
+            if (originInterval < 0) {
+                baseArray = baseArray.reverse();
+            }
+            return baseArray;
+        };
         this.defaultBaseGenStrategy = function (originInterval) {
             var base = AxisHelper.genPowNum(originInterval);
             var baseArray = [10 * base, 5 * base, 2 * base, base];
@@ -179,7 +195,7 @@ var YAxisTransformer = /** @class */ (function () {
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;
-        var interval;
+        var interval = this.preHandle();
         // 处理最小值 
         // 找出规整间距
         this._minData = this.handleMin(this._maxData, this._minData);
@@ -254,6 +270,83 @@ var YAxisTransformer = /** @class */ (function () {
             }
         });
         return unit;
+    };
+    YAxisTransformer.prototype.preHandle = function () {
+        var _a = this, _minData = _a._minData, _maxData = _a._maxData, _count = _a._count;
+        var interval = (_maxData - _minData) / _count;
+        var min2 = this.keepNumFactor(_minData, 2, false);
+        var max2 = this.keepNumFactor(_maxData, 2, true);
+        var interval2 = max2 - min2;
+        var result2 = this.chooseInterval(min2, max2, interval2, this.defaultBaseGenStrategy2);
+        var min5 = this.keepNumFactor(_minData, 5, false);
+        var max5 = this.keepNumFactor(_maxData, 5, true);
+        var interval5 = max5 - min5;
+        var result5 = this.chooseInterval(min5, max5, interval5, this.defaultBaseGenStrategy5);
+        if (result2.interval < result5.interval) {
+            _minData = result2.min;
+            interval = result2.interval;
+        }
+        else {
+            _minData = result5.min;
+            interval = result5.interval;
+        }
+        var newArray = [];
+        for (var i = 0; i < this._count + 1; i++) {
+            newArray.push(_minData + i * interval);
+        }
+        console.log(this._minData + " " + this._maxData + " [ " + newArray.join(" : ") + " ]" + " new ");
+        //this._minData = _minData
+        //this._maxData = newArray[newArray.length - 1]
+        return interval;
+    };
+    YAxisTransformer.prototype.chooseInterval = function (minData, maxData, interval, baseGenStrategy) {
+        var newInterval = AxisHelper.findInterval(interval / this._count, baseGenStrategy);
+        var newMinData = minData;
+        if (newMinData > 0 && newMinData < newInterval) {
+            newMinData = 0;
+            newInterval = this.takeInterval(maxData);
+        }
+        return {
+            interval: newInterval,
+            min: newMinData
+        };
+    };
+    YAxisTransformer.prototype.takeInterval = function (maxData) {
+        var result = maxData / this._count;
+        console.log(result);
+        return this.keepNumFactor(result, 20, true);
+    };
+    /**
+     * 保持数字取模之后是factor的倍数
+     * isCeil true说明返回值大于等于num
+     *
+     */
+    YAxisTransformer.prototype.keepNumFactor = function (numOrigin, factor, isCeil) {
+        var isPositive = numOrigin < 0;
+        var decimalNum = AxisHelper.getMinDecimalToInt(numOrigin);
+        var num = Math.abs(numOrigin) * Math.pow(10, decimalNum);
+        var numPow = AxisHelper.genPowNum(num);
+        if (numPow >= 10) {
+            factor = factor * (numPow / 10);
+        }
+        var remainPart = num % factor;
+        var keepPart = num - remainPart;
+        var result;
+        if (remainPart == 0) {
+            result = num;
+        }
+        else {
+            result = keepPart;
+            if ((isCeil !== isPositive) && remainPart != 0) {
+                result += factor;
+            }
+        }
+        // 如果向上取并且原始值不是mod的倍数 则加上factor
+        //     console.log(num + " keep: " + keepPart + " " + factor)
+        if (decimalNum > 0) {
+            result = result / (Math.pow(10, decimalNum));
+        }
+        return isPositive ? -result : result;
     };
     YAxisTransformer.prototype.handleMin = function (maxData, minData) {
         var _a = this, _count = _a._count, minToZero = _a.minToZero, baseGenStrategy = _a.baseGenStrategy;
