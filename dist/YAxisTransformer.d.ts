@@ -20,8 +20,7 @@ export declare type TransformResult = {
     unit: Unit;
 };
 export declare class YAxisTransformer {
-    defaultBaseGenStrategy2: (originInterval: number) => number[];
-    defaultBaseGenStrategy5: (originInterval: number) => number[];
+    minBaseGenStrategry: (interval: number, minData: number) => number[];
     defaultBaseGenStrategy: (originInterval: number) => number[];
     defaultFormatRuler: (data: number, decimal: number) => string;
     defaultUnitSet: {
@@ -96,15 +95,14 @@ export declare class YAxisTransformer {
     transform(): TransformResult;
     private sortUnitSet;
     private findUnit;
-    private preHandle;
-    private chooseInterval;
-    private takeInterval;
-    /**
-     * 保持数字取模之后是factor的倍数
-     * isCeil true说明返回值大于等于num
-     *
-     */
-    keepNumFactor(numOrigin: number, factor: number, isCeil: boolean): number;
+    findInterval(handleMinResult: {
+        min: number;
+        intervals: number[];
+    }[], _maxData: number): void;
+    preHandleMin(minData: number, maxData: number): {
+        min: number;
+        intervals: number[];
+    }[];
     private handleMin;
 }
 export default YAxisTransformer;

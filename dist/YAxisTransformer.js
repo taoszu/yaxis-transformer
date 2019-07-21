@@ -12,18 +12,13 @@ var mathjs_1 = require("mathjs");
 var YAxisTransformer = /** @class */ (function () {
     function YAxisTransformer(values) {
         var _this = this;
-        this.defaultBaseGenStrategy2 = function (originInterval) {
-            var base = AxisHelper.genPowNum(originInterval);
-            var baseArray = [10 * base, 2 * base, base];
-            if (originInterval < 0) {
-                baseArray = baseArray.reverse();
+        this.minBaseGenStrategry = function (interval, minData) {
+            var base = AxisHelper.genPowNum(interval);
+            if (minData < 0) {
+                base = -base;
             }
-            return baseArray;
-        };
-        this.defaultBaseGenStrategy5 = function (originInterval) {
-            var base = AxisHelper.genPowNum(originInterval);
-            var baseArray = [10 * base, 5 * base, base];
-            if (originInterval < 0) {
+            var baseArray = [8 * base, 6 * base, 5 * base, 4 * base, 2.5 * base, 2 * base, 0];
+            if (minData < 0) {
                 baseArray = baseArray.reverse();
             }
             return baseArray;
@@ -195,7 +190,9 @@ var YAxisTransformer = /** @class */ (function () {
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;
-        var interval = this.preHandle();
+        var interval;
+        var result = this.preHandleMin(this._minData, this._maxData);
+        this.findInterval(result, this._maxData);
         // 处理最小值 
         // 找出规整间距
         this._minData = this.handleMin(this._maxData, this._minData);
@@ -223,25 +220,25 @@ var YAxisTransformer = /** @class */ (function () {
         var data = [];
         var dataUnit = [];
         for (var i = 0; i < _count + 1; i++) {
-            var result = this._minData + interval * i;
-            data.push(result);
+            var result_1 = this._minData + interval * i;
+            data.push(result_1);
             // 找单位
             if (!keepUnitSame && !usePercentUnit) {
-                unit = this.findUnit(result);
+                unit = this.findUnit(result_1);
             }
             var formatResult = void 0;
-            if (result == 0 && !this.keepZeroDecimal) {
+            if (result_1 == 0 && !this.keepZeroDecimal) {
                 formatResult = "0";
             }
             else {
-                formatResult = formatRuler(result / unit.range, decimal);
+                formatResult = formatRuler(result_1 / unit.range, decimal);
             }
             // 如果格式化之前不是0 格式化之后为0 也需要做处理
             if (!this.keepZeroDecimal && Number(formatResult) == 0) {
-                result = 0;
+                result_1 = 0;
                 formatResult = "0";
             }
-            if (result != 0 || keepZeroUnit) {
+            if (result_1 != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit;
             }
             dataUnit.push(formatResult);
@@ -271,82 +268,75 @@ var YAxisTransformer = /** @class */ (function () {
         });
         return unit;
     };
-    YAxisTransformer.prototype.preHandle = function () {
-        var _a = this, _minData = _a._minData, _maxData = _a._maxData, _count = _a._count;
-        var interval = (_maxData - _minData) / _count;
-        var min2 = this.keepNumFactor(_minData, 2, false);
-        var max2 = this.keepNumFactor(_maxData, 2, true);
-        var interval2 = max2 - min2;
-        var result2 = this.chooseInterval(min2, max2, interval2, this.defaultBaseGenStrategy2);
-        var min5 = this.keepNumFactor(_minData, 5, false);
-        var max5 = this.keepNumFactor(_maxData, 5, true);
-        var interval5 = max5 - min5;
-        var result5 = this.chooseInterval(min5, max5, interval5, this.defaultBaseGenStrategy5);
-        if (result2.interval < result5.interval) {
-            _minData = result2.min;
-            interval = result2.interval;
-        }
-        else {
-            _minData = result5.min;
-            interval = result5.interval;
-        }
+    YAxisTransformer.prototype.findInterval = function (handleMinResult, _maxData) {
+        var _count = this._count;
+        var findIntervals = [];
+        handleMinResult.forEach(function (item) {
+            var minData = item.min;
+            var originInterval = (_maxData - minData) / _count;
+            var intervals = item.intervals;
+            var findIndex = intervals.findIndex(function (interval) { return originInterval >= interval; });
+            if (findIndex < 0) {
+                findIndex = intervals.length;
+            }
+            var finalInterval = intervals[Math.max(0, findIndex - 1)];
+            findIntervals.push({ min: minData, interval: finalInterval });
+        });
+        findIntervals.sort(function (o1, o2) {
+            var diff = o1.interval - o2.interval;
+            return diff == 0 ? Math.abs(o1.min) - Math.abs(o2.min) : diff;
+        });
+        var finalResult = findIntervals[0];
         var newArray = [];
-        for (var i = 0; i < this._count + 1; i++) {
-            newArray.push(_minData + i * interval);
+        for (var i = 0; i <= this._count; i++) {
+            newArray.push(finalResult.min + finalResult.interval * i);
         }
-        console.log(this._minData + " " + this._maxData + " [ " + newArray.join(" : ") + " ]" + " new ");
-        //this._minData = _minData
-        //this._maxData = newArray[newArray.length - 1]
-        return interval;
+        console.log(JSON.stringify(findIntervals));
+        console.log(JSON.stringify(newArray));
     };
-    YAxisTransformer.prototype.chooseInterval = function (minData, maxData, interval, baseGenStrategy) {
-        var newInterval = AxisHelper.findInterval(interval / this._count, baseGenStrategy);
-        var newMinData = minData;
-        if (newMinData > 0 && newMinData < newInterval) {
-            newMinData = 0;
-            newInterval = this.takeInterval(maxData);
-        }
-        return {
-            interval: newInterval,
-            min: newMinData
-        };
-    };
-    YAxisTransformer.prototype.takeInterval = function (maxData) {
-        var result = maxData / this._count;
-        console.log(result);
-        return this.keepNumFactor(result, 20, true);
-    };
-    /**
-     * 保持数字取模之后是factor的倍数
-     * isCeil true说明返回值大于等于num
-     *
-     */
-    YAxisTransformer.prototype.keepNumFactor = function (numOrigin, factor, isCeil) {
-        var isPositive = numOrigin < 0;
-        var decimalNum = AxisHelper.getMinDecimalToInt(numOrigin);
-        var num = Math.abs(numOrigin) * Math.pow(10, decimalNum);
-        var numPow = AxisHelper.genPowNum(num);
-        if (numPow >= 10) {
-            factor = factor * (numPow / 10);
-        }
-        var remainPart = num % factor;
-        var keepPart = num - remainPart;
-        var result;
-        if (remainPart == 0) {
-            result = num;
+    YAxisTransformer.prototype.preHandleMin = function (minData, maxData) {
+        var _a = this, _count = _a._count, minBaseGenStrategry = _a.minBaseGenStrategry;
+        var interval = (maxData - minData) / _count;
+        var basePowNum = AxisHelper.genPowNum(interval);
+        var minArray = [];
+        if (minData > 0 && minData < interval) {
+            minArray.push({
+                min: 0,
+                intervals: [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
+                    4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum]
+            });
         }
         else {
-            result = keepPart;
-            if ((isCeil !== isPositive) && remainPart != 0) {
-                result += factor;
+            var baseArray = minBaseGenStrategry(interval, minData);
+            var maxHandleCount = 3;
+            var handlePart = minData % (basePowNum * 10);
+            var remainPart = minData - handlePart;
+            for (var i = 0; i < baseArray.length; i++) {
+                var item = baseArray[i];
+                if (item <= handlePart) {
+                    var intervals = [];
+                    if (item == 0) {
+                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
+                            4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum];
+                    }
+                    else if (item % (2.5 * basePowNum) == 0) {
+                        intervals = [10 * basePowNum, 5 * basePowNum, 2.5 * basePowNum];
+                    }
+                    else {
+                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 4 * basePowNum, 2 * basePowNum];
+                    }
+                    var newMin = remainPart + item;
+                    minArray.push({
+                        min: newMin,
+                        intervals: intervals
+                    });
+                }
+                if (minArray.length == maxHandleCount) {
+                    break;
+                }
             }
         }
-        // 如果向上取并且原始值不是mod的倍数 则加上factor
-        //     console.log(num + " keep: " + keepPart + " " + factor)
-        if (decimalNum > 0) {
-            result = result / (Math.pow(10, decimalNum));
-        }
-        return isPositive ? -result : result;
+        return minArray;
     };
     YAxisTransformer.prototype.handleMin = function (maxData, minData) {
         var _a = this, _count = _a._count, minToZero = _a.minToZero, baseGenStrategy = _a.baseGenStrategy;

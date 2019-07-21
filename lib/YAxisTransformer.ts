@@ -17,22 +17,17 @@ export type Unit = { range: number, unit: string }
 export type TransformResult = { data: number[], dataUnit: string[], adviseDecimal: number, min: number, max: number, unit: Unit }
 
 export class YAxisTransformer {
-
-    defaultBaseGenStrategy2 = (originInterval: number) => {
-        let base = AxisHelper.genPowNum(originInterval)
-        let baseArray = [10 * base, 2 * base, base]
-        if (originInterval < 0) {
+    
+    minBaseGenStrategry = (interval:number, minData:number) => {
+        let base = AxisHelper.genPowNum(interval)
+        if(minData < 0) {
+            base = - base
+        }
+        let baseArray = [8 * base, 6 * base, 5 * base, 4 * base, 2.5 * base, 2 * base, 0]
+        if(minData < 0) {
             baseArray = baseArray.reverse()
         }
-        return baseArray
-    }
 
-    defaultBaseGenStrategy5 = (originInterval: number) => {
-        let base = AxisHelper.genPowNum(originInterval)
-        let baseArray = [10 * base, 5 * base, base]
-        if (originInterval < 0) {
-            baseArray = baseArray.reverse()
-        }
         return baseArray
     }
 
@@ -238,7 +233,10 @@ export class YAxisTransformer {
         let unit
         let decimal = forceDecimal
         let adviceDecimal
-        let interval =  this.preHandle()
+        let interval
+
+        const result = this.preHandleMin(this._minData, this._maxData)
+        this.findInterval(result, this._maxData)
 
          // 处理最小值 
         // 找出规整间距
@@ -326,94 +324,88 @@ export class YAxisTransformer {
         return unit
     }
 
-    private preHandle() {
-        let {_minData, _maxData, _count} = this
-        let interval = (_maxData - _minData) / _count
 
-        let min2 = this.keepNumFactor(_minData, 2, false)
-        let max2 = this.keepNumFactor(_maxData, 2, true)
-        let interval2 = max2 - min2
-        const result2 = this.chooseInterval(min2, max2, interval2, this.defaultBaseGenStrategy2)
+    findInterval(handleMinResult: {min:number, intervals:number[]}[], _maxData:number) {
+        const { _count} = this
+        let findIntervals:{min:number, interval:number}[] = []
+        handleMinResult.forEach((item) => {
+            const minData = item.min
+            const originInterval = (_maxData - minData) / _count
+            const intervals = item.intervals
 
-        let min5 = this.keepNumFactor(_minData, 5, false)
-        let max5 = this.keepNumFactor(_maxData, 5, true)
-        let interval5 = max5 - min5
-        const result5 = this.chooseInterval(min5, max5, interval5, this.defaultBaseGenStrategy5)
+            let findIndex = intervals.findIndex((interval)=> originInterval >= interval )
+            if(findIndex < 0){
+                findIndex =  intervals.length
+            }
 
-        if(result2.interval < result5.interval) {
-            _minData = result2.min
-            interval = result2.interval
+            const finalInterval = intervals[Math.max(0, findIndex - 1)]
+            findIntervals.push({min:minData, interval: finalInterval})
+        })
+
+        findIntervals.sort((o1, o2) => {
+            const diff = o1.interval - o2.interval
+            return diff == 0 ? Math.abs(o1.min) - Math.abs(o2.min) : diff
+        })
+        const finalResult = findIntervals[0]
+
+        let newArray:number[] = []
+        for(let i = 0; i <= this._count; i ++) {
+            newArray.push(finalResult.min + finalResult.interval * i)
+        }
+
+        console.log(JSON.stringify(findIntervals))
+        console.log(JSON.stringify(newArray))
+    }
+
+
+    preHandleMin(minData: number, maxData: number) {
+        let { _count, minBaseGenStrategry } = this
+        let interval = (maxData - minData) / _count
+        const basePowNum = AxisHelper.genPowNum(interval)
+
+        let minArray = []
+        if(minData > 0 && minData < interval) {
+            minArray.push({
+                min: 0,
+                intervals:[10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
+                     4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum]
+            })
+
         } else {
-            _minData = result5.min
-            interval = result5.interval
-        }
+            const baseArray = minBaseGenStrategry(interval, minData)
+            const maxHandleCount = 3
+            const handlePart = minData % (basePowNum * 10) 
+            const remainPart = minData - handlePart
 
-        let newArray = []
-        for(let i = 0; i < this._count + 1; i ++) {
-            newArray.push(_minData + i * interval)
-        }
-        console.log(this._minData + " " + this._maxData + " [ " + newArray.join(" : ") + " ]" + " new ")
-        
-        //this._minData = _minData
-        //this._maxData = newArray[newArray.length - 1]
-        return interval
-    }
 
-    private chooseInterval(minData:number, maxData:number, interval:number, baseGenStrategy:Strategy) {
-        let newInterval =  AxisHelper.findInterval(interval/this._count, baseGenStrategy)
-        let newMinData = minData
+            for(let i = 0; i < baseArray.length; i ++) {
+                const item = baseArray[i]
+                if(item <= handlePart) {
+                    let intervals:number[] = []
+                    if(item == 0) {
+                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
+                            4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum]
+                    } else if(item % (2.5 * basePowNum) == 0) {
+                        intervals = [10 * basePowNum, 5 * basePowNum, 2.5 * basePowNum]
+                    } else {
+                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 4 * basePowNum, 2 * basePowNum]
+                    }
 
-        if(newMinData > 0 && newMinData < newInterval) {
-            newMinData = 0
-            newInterval = this.takeInterval(maxData) 
-        }
-    
-        return {
-            interval: newInterval,
-            min:newMinData 
-        }
-    }
-
-    private takeInterval(maxData:number) {
-        const result = maxData / this._count
-        return this.keepNumFactor(result, 20, true)
-    }
-
-    /**
-     * 保持数字取模之后是factor的倍数
-     * isCeil true说明返回值大于等于num 
-     * 
-     */
-    keepNumFactor(numOrigin:number, factor:number, isCeil:boolean) {
-        const isPositive = numOrigin < 0
-        const decimalNum = AxisHelper.getMinDecimalToInt(numOrigin)
-        const num = Math.abs(numOrigin) * Math.pow(10, decimalNum)
-
-        const numPow = AxisHelper.genPowNum(num)
-        if(numPow >= 10) {
-            factor = factor * (numPow /10)
-        }
-    
-        const remainPart = num % factor
-        const keepPart = num - remainPart
-        let result
-        if(remainPart == 0) {
-            result = num
-        } else {
-            result = keepPart
-            if((isCeil !== isPositive) && remainPart != 0) {
-                result += factor
+                    const newMin = remainPart + item
+                    minArray.push({
+                        min: newMin,
+                        intervals:intervals
+                    })
+                }
+                if(minArray.length == maxHandleCount) {
+                    break
+                }
             }
         }
-        // 如果向上取并且原始值不是mod的倍数 则加上factor
-      
-
-   //     console.log(num + " keep: " + keepPart + " " + factor)
-        if(decimalNum > 0) {
-            result = result / (Math.pow(10, decimalNum))
-        }
-        return isPositive ? -result : result
+        return minArray
     }
+
+
 
     private handleMin(maxData: number, minData: number) {
         let { _count, minToZero, baseGenStrategy } = this

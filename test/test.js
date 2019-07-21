@@ -231,16 +231,86 @@ describe('yaxis transform test 12', () => {
   });
 }); */
 
+describe('pre handle min', () => {
+  it('test baseGen ', () => {
 
-describe('yaxis transform test 13', () => {
+    const array = [
+      {x:30.9, y:108},
+      {x:0.363, y:0.667},
+      {x:0.34, y:0.439}, 
+      {x:0.034, y:0.439}, 
+      {x:201.7, y:450.2},
+      {x:201.7, y:850.2},      
+      {x:0.484, y:0.649},
+      {x:0.58, y:1.24},
+      {x:58, y:124},
+      {x:3302, y:8000},
+      {x:3.1, y:12.8},
+      {x:0.8, y:4.8},
+      {x:4.7, y:8.5},
+      {x:173, y:926},
+      {x:52, y:218},
+      {x:52, y:218},
+      {x:4, y:10},
+      {x:23, y:42},
+      {x:442, y:550},
+      {x:17.9, y:22.7},
+      {x:80, y:200},
+      {x:-20, y:80},
+      {x:-200, y:-80},
+      {x:-2, y:0},
+      {x:-2, y:-0.5},
+      {x:0.183, y:0.227},
+      {x:4, y:21},
+      {x:4, y:21},
+      {x:3.3, y:4.2},
+      {x:4.5, y:6.4},
+      {x:29.5, y:42},
+      {x:0.01, y:0.07},
+      {x:0.8, y:19.9},
+    ]
+
+    console.log((-20) %10)
+
+    const yaxisTransformer = new YaxisTransformer()
+    array.forEach((item) => {
+      console.log(item.x + " -> " + item.y)
+
+      const result = yaxisTransformer.withMinMaxData(item.x, item.y)
+      .transform()
+
+      console.log(JSON.stringify(result.data) + " old " + "\n")
+
+    })
+  });
+})
+
+
+/* describe('yaxis transform test 13', () => {
   it('result ', () => {
 
     const array = [
-      {x:31.9, y:108},
+      {x:30.9, y:108},
       {x:0.363, y:0.667},
-      {x:0.34, y:0.439},
-      {x:0.035, y:0.439},
-      {x:35, y:439},
+      {x:0.34, y:0.439}, 
+      {x:0.034, y:0.439}, 
+      {x:201.7, y:450.2},
+      {x:201.7, y:850.2},      
+      {x:0.484, y:0.649},
+      {x:0.58, y:1.24},
+      {x:58, y:124},
+      {x:3302, y:8000},
+      {x:3.1, y:12.8},
+      {x:0.8, y:4.8},
+      {x:4.7, y:8.5},
+      {x:173, y:926},
+      {x:52, y:218},
+      {x:52, y:218},
+      {x:4, y:10},
+      {x:23, y:42},
+      {x:442, y:550},
+      {x:17.9, y:22.7},
+      {x:80, y:200},
     ]
 
     const array1 = [
@@ -283,4 +353,4 @@ describe('yaxis transform test 13', () => {
     //expect(transformResult.dataUnit).deep.equal(['0.10', '0.12', '0.14', '0.16', '0.18']).deep
 
   });
-});
+}); */
