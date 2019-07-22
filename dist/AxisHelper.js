@@ -52,9 +52,13 @@ exports.genPowNum = genPowNum;
  * @param data
  */
 function getPowBit(data) {
-    return (data == 0) ? 0 : Math.floor(Math.log10(Math.abs(data)));
+    return (data == 0) ? 0 : Math.floor(log10(Math.abs(data)));
 }
 exports.getPowBit = getPowBit;
+function log10(data) {
+    return Math.log(data) / Math.log(10);
+}
+exports.log10 = log10;
 /**
  * 获取小数的小数位数位数
  * @param data

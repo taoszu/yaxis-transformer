@@ -27,6 +27,7 @@ export declare function genPowNum(data: number): number;
  * @param data
  */
 export declare function getPowBit(data: number): number;
+export declare function log10(data: number): number;
 /**
  * 获取小数的小数位数位数
  * @param data

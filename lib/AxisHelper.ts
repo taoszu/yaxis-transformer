@@ -55,9 +55,12 @@ export function genPowNum(data: number) {
  * @param data
  */
 export function getPowBit(data: number) {
-    return (data == 0) ? 0 :  Math.floor(Math.log10(Math.abs(data)))
+    return (data == 0) ? 0 :  Math.floor(log10(Math.abs(data)))
 }
 
+export function log10(data: number) {
+    return Math.log(data) / Math.log(10)
+}
 /**
  * 获取小数的小数位数位数
  * @param data 
