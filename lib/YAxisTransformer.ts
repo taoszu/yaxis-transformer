@@ -372,16 +372,20 @@ export class YAxisTransformer {
     preHandleMin(minData: number, maxData: number) {
         let { _count, minBaseGenStrategry } = this
         let interval = (maxData - minData) / _count
-        const basePowNum = AxisHelper.genPowNum(interval)
 
         let minArray = []
         if(minData > 0 && minData < interval) {
+            let newMin = 0
+            let basePowNum = AxisHelper.genPowNum(maxData/_count)
+
             minArray.push({
-                min: 0,
+                min: newMin,
                 intervals:this.allBaseGenStrategy(basePowNum)
             })
 
         } else {
+            let basePowNum = AxisHelper.genPowNum(interval)
+
             const baseArray = minBaseGenStrategry(interval, minData)
             const maxHandleCount = 4
             const handlePart = minData % (basePowNum * 10) 
@@ -390,7 +394,10 @@ export class YAxisTransformer {
             for(let i = 0; i < baseArray.length; i ++) {
                 const item = baseArray[i]
                 if(item <= handlePart) {
+                    const newMin = remainPart + item
                     let intervals:number[] = []
+                    basePowNum = AxisHelper.genPowNum((maxData - newMin)/ this._count)
+
                     if(item == 0) {
                         intervals = this.allBaseGenStrategy(basePowNum)
                     } else if(item % (2.5 * basePowNum) == 0) {
@@ -399,7 +406,6 @@ export class YAxisTransformer {
                         intervals = this.evenBaseGenStrategy(basePowNum)
                     }
 
-                    const newMin = remainPart + item
                     minArray.push({
                         min: newMin,
                         intervals:intervals
