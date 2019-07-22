@@ -8,28 +8,50 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var AxisHelper = __importStar(require("./AxisHelper"));
-var mathjs_1 = require("mathjs");
 var YAxisTransformer = /** @class */ (function () {
     function YAxisTransformer(values) {
         var _this = this;
+        /**
+        * 奇数基准值生成策略
+        */
+        this.oddBaseGenStrategy = function (basePowNum) {
+            var array = [];
+            [10, 5, 2.5].forEach(function (item) { return array.push(item * basePowNum); });
+            return array;
+        };
+        /**
+          * 偶数数基准值生成策略
+          */
+        this.evenBaseGenStrategy = function (basePowNum) {
+            var array = [];
+            [10, 8, 6, 4].forEach(function (item) { return array.push(item * basePowNum); });
+            return array;
+        };
+        /**
+         * 所有基准值生成策略
+         */
+        this.allBaseGenStrategy = function (basePowNum) {
+            var array = [];
+            [10, 8, 6, 5, 4, 2.5, 2].forEach(function (item) { return array.push(item * basePowNum); });
+            return array;
+        };
+        /**
+         * 最小值基准值生成策略
+         */
         this.minBaseGenStrategry = function (interval, minData) {
             var base = AxisHelper.genPowNum(interval);
             if (minData < 0) {
                 base = -base;
             }
-            var baseArray = [8 * base, 6 * base, 5 * base, 4 * base, 2.5 * base, 2 * base, 0];
+            ;
+            var array = [];
+            [8, 6, 5, 4, 2.5, 2, 0].forEach(function (item) { return array.push(item * base); });
             if (minData < 0) {
-                baseArray = baseArray.reverse();
+                return array.reverse();
             }
-            return baseArray;
-        };
-        this.defaultBaseGenStrategy = function (originInterval) {
-            var base = AxisHelper.genPowNum(originInterval);
-            var baseArray = [10 * base, 5 * base, 2 * base, base];
-            if (originInterval < 0) {
-                baseArray = baseArray.reverse();
+            else {
+                return array;
             }
-            return baseArray;
         };
         this.defaultFormatRuler = function (data, decimal) {
             return data.toFixed(decimal);
@@ -37,10 +59,6 @@ var YAxisTransformer = /** @class */ (function () {
         this.defaultUnitSet = [{ range: 10000, unit: "万" }, { range: 100000000, unit: "亿" }];
         this._maxData = -Number.MAX_VALUE;
         this._minData = Number.MAX_VALUE;
-        /**
-         *  基准值生成策略
-         */
-        this.baseGenStrategy = this.defaultBaseGenStrategy;
         /**
          * 格式化数据的规则
          */
@@ -130,10 +148,6 @@ var YAxisTransformer = /** @class */ (function () {
         this._maxData = maxData;
         return this;
     };
-    YAxisTransformer.prototype.withBaseGenStrategy = function (baseGenStrategy) {
-        this.baseGenStrategy = baseGenStrategy;
-        return this;
-    };
     YAxisTransformer.prototype.withFormatRuler = function (formatRuler) {
         this.formatRuler = formatRuler;
         return this;
@@ -168,7 +182,7 @@ var YAxisTransformer = /** @class */ (function () {
     };
     YAxisTransformer.prototype.transform = function () {
         this.sortUnitSet();
-        var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, maxDecimal = _a.maxDecimal, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, baseGenStrategy = _a.baseGenStrategy, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
+        var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, maxDecimal = _a.maxDecimal, unitFollowMax = _a.unitFollowMax, forceDecimal = _a.forceDecimal, keepZeroUnit = _a.keepZeroUnit, formatRuler = _a.formatRuler, withKeepZeroDecimal = _a.withKeepZeroDecimal;
         if (_count <= 0) {
             throw "count should >= 0";
         }
@@ -191,13 +205,12 @@ var YAxisTransformer = /** @class */ (function () {
         var decimal = forceDecimal;
         var adviceDecimal;
         var interval;
-        var result = this.preHandleMin(this._minData, this._maxData);
-        this.findInterval(result, this._maxData);
+        var handelMinArray = this.preHandleMin(this._minData, this._maxData);
+        var result = this.findInterval(handelMinArray, this._maxData);
         // 处理最小值 
         // 找出规整间距
-        this._minData = this.handleMin(this._maxData, this._minData);
-        interval = (this._maxData - this._minData) / _count;
-        interval = AxisHelper.findInterval(interval, baseGenStrategy);
+        this._minData = result.min;
+        interval = result.interval;
         this._maxData = AxisHelper.genMaxData(this._minData, interval, _count);
         // 找出单位
         unit = AxisHelper.minUnit;
@@ -268,10 +281,15 @@ var YAxisTransformer = /** @class */ (function () {
         });
         return unit;
     };
-    YAxisTransformer.prototype.findInterval = function (handleMinResult, _maxData) {
+    /**
+     * 找出间距
+     * @param handleMinArray
+     * @param _maxData
+     */
+    YAxisTransformer.prototype.findInterval = function (handleMinArray, _maxData) {
         var _count = this._count;
         var findIntervals = [];
-        handleMinResult.forEach(function (item) {
+        handleMinArray.forEach(function (item) {
             var minData = item.min;
             var originInterval = (_maxData - minData) / _count;
             var intervals = item.intervals;
@@ -286,14 +304,13 @@ var YAxisTransformer = /** @class */ (function () {
             var diff = o1.interval - o2.interval;
             return diff == 0 ? Math.abs(o1.min) - Math.abs(o2.min) : diff;
         });
-        var finalResult = findIntervals[0];
-        var newArray = [];
-        for (var i = 0; i <= this._count; i++) {
-            newArray.push(finalResult.min + finalResult.interval * i);
-        }
-        console.log(JSON.stringify(findIntervals));
-        console.log(JSON.stringify(newArray));
+        return findIntervals[0];
     };
+    /**
+     *  预处理最小值
+     * @param minData
+     * @param maxData
+     */
     YAxisTransformer.prototype.preHandleMin = function (minData, maxData) {
         var _a = this, _count = _a._count, minBaseGenStrategry = _a.minBaseGenStrategry;
         var interval = (maxData - minData) / _count;
@@ -302,13 +319,12 @@ var YAxisTransformer = /** @class */ (function () {
         if (minData > 0 && minData < interval) {
             minArray.push({
                 min: 0,
-                intervals: [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
-                    4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum]
+                intervals: this.allBaseGenStrategy(basePowNum)
             });
         }
         else {
             var baseArray = minBaseGenStrategry(interval, minData);
-            var maxHandleCount = 3;
+            var maxHandleCount = 4;
             var handlePart = minData % (basePowNum * 10);
             var remainPart = minData - handlePart;
             for (var i = 0; i < baseArray.length; i++) {
@@ -316,14 +332,13 @@ var YAxisTransformer = /** @class */ (function () {
                 if (item <= handlePart) {
                     var intervals = [];
                     if (item == 0) {
-                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
-                            4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum];
+                        intervals = this.allBaseGenStrategy(basePowNum);
                     }
                     else if (item % (2.5 * basePowNum) == 0) {
-                        intervals = [10 * basePowNum, 5 * basePowNum, 2.5 * basePowNum];
+                        intervals = this.oddBaseGenStrategy(basePowNum);
                     }
                     else {
-                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 4 * basePowNum, 2 * basePowNum];
+                        intervals = this.evenBaseGenStrategy(basePowNum);
                     }
                     var newMin = remainPart + item;
                     minArray.push({
@@ -337,40 +352,6 @@ var YAxisTransformer = /** @class */ (function () {
             }
         }
         return minArray;
-    };
-    YAxisTransformer.prototype.handleMin = function (maxData, minData) {
-        var _a = this, _count = _a._count, minToZero = _a.minToZero, baseGenStrategy = _a.baseGenStrategy;
-        var interval = (maxData - minData) / _count;
-        var baseInterval = AxisHelper.findInterval(interval, this.baseGenStrategy);
-        if (minData > 0 && baseInterval > minData) {
-            return minToZero ? 0 : AxisHelper.findMinInterval(minData, baseGenStrategy);
-        }
-        else if (minData < 0 && baseInterval > Math.abs(minData)) {
-            return AxisHelper.findMinInterval(minData, baseGenStrategy);
-        }
-        else {
-            var intervalPowNum = AxisHelper.genPowNum(baseInterval);
-            var baseNum = intervalPowNum * 10;
-            var keepPart = void 0;
-            if (minData >= 0) {
-                keepPart = Math.floor(minData / baseNum) * baseNum;
-            }
-            else {
-                keepPart = -Math.floor(Math.abs(minData) / baseNum) * baseNum;
-            }
-            var remainPart = minData - keepPart;
-            var remainPowNum = AxisHelper.genPowNum(remainPart);
-            var result = keepPart;
-            //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
-            //否则直接舍弃处理的part
-            if (Math.abs(intervalPowNum) == Math.abs(remainPowNum)) {
-                var interval_1 = AxisHelper.findMinInterval(remainPart, baseGenStrategy);
-                // 计算保留的最大小数位数
-                var maxDecimal = Math.max(AxisHelper.getDecimalNum(interval_1), AxisHelper.getDecimalNum(keepPart));
-                result = Number(mathjs_1.bignumber(keepPart).add(mathjs_1.bignumber(interval_1)).toFixed(maxDecimal));
-            }
-            return result;
-        }
     };
     return YAxisTransformer;
 }());

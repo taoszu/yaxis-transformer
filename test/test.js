@@ -268,9 +268,17 @@ describe('pre handle min', () => {
       {x:29.5, y:42},
       {x:0.01, y:0.07},
       {x:0.8, y:19.9},
+      {x:0.005, y:0.11},
+      {x:0.003, y:0.076},
+      {x:13, y:16},
+      {x:4267, y:4383},
+      {x:-0.003, y:0.119},
+      {x:23, y:60},
+      {x:23, y:114},
+      {x:23, y:138},
+      {x:23000000, y:138000000},
+      {x:6520, y:13800},
     ]
-
-    console.log((-20) %10)
 
     const yaxisTransformer = new YaxisTransformer()
     array.forEach((item) => {
@@ -279,8 +287,7 @@ describe('pre handle min', () => {
       const result = yaxisTransformer.withMinMaxData(item.x, item.y)
       .transform()
 
-      console.log(JSON.stringify(result.data) + " old " + "\n")
-
+      console.log(JSON.stringify(result)  + "\n")
     })
   });
 })

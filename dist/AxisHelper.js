@@ -124,14 +124,14 @@ function getDecimal(min, reference, interval, unit) {
         decimal = Math.max(minDecimal, intervalDecimal);
     }
     else {
-        if (min > reference || isEmpty(unit.unit) || min == 0) {
+        if (min > reference || isEmpty(unit.unit)) {
             decimal = 0;
         }
         else {
-            decimal = getPowBit(unit.range) - getPowBit(min);
-            decimal = Math.max(0, decimal);
+            decimal = getPowBit(unit.range) - (min == 0 ? getPowBit(interval) : getPowBit(min));
         }
     }
+    decimal = Math.max(0, decimal);
     // 如果是百分比 需要减2
     if (unit.unit == exports.percentUnit.unit) {
         decimal = Math.max(0, decimal - 2);

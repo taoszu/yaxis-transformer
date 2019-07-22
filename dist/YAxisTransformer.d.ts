@@ -20,8 +20,22 @@ export declare type TransformResult = {
     unit: Unit;
 };
 export declare class YAxisTransformer {
+    /**
+    * 奇数基准值生成策略
+    */
+    oddBaseGenStrategy: (basePowNum: number) => number[];
+    /**
+      * 偶数数基准值生成策略
+      */
+    evenBaseGenStrategy: (basePowNum: number) => number[];
+    /**
+     * 所有基准值生成策略
+     */
+    allBaseGenStrategy: (basePowNum: number) => number[];
+    /**
+     * 最小值基准值生成策略
+     */
     minBaseGenStrategry: (interval: number, minData: number) => number[];
-    defaultBaseGenStrategy: (originInterval: number) => number[];
     defaultFormatRuler: (data: number, decimal: number) => string;
     defaultUnitSet: {
         range: number;
@@ -31,10 +45,6 @@ export declare class YAxisTransformer {
     private _minData;
     readonly maxData: number;
     readonly minData: number;
-    /**
-     *  基准值生成策略
-     */
-    private baseGenStrategy;
     /**
      * 格式化数据的规则
      */
@@ -83,7 +93,6 @@ export declare class YAxisTransformer {
     withUnitSet(unitSet: Unit[]): this;
     withPercentUnit(): this;
     withMinMaxData(minData: number, maxData: number): this;
-    withBaseGenStrategy(baseGenStrategy: Strategy): this;
     withFormatRuler(formatRuler: FormatRuler): this;
     withForceDecimal(decimal: number): this;
     withMaxDecimal(decimal: number): this;
@@ -95,14 +104,26 @@ export declare class YAxisTransformer {
     transform(): TransformResult;
     private sortUnitSet;
     private findUnit;
-    findInterval(handleMinResult: {
+    /**
+     * 找出间距
+     * @param handleMinArray
+     * @param _maxData
+     */
+    findInterval(handleMinArray: {
         min: number;
         intervals: number[];
-    }[], _maxData: number): void;
+    }[], _maxData: number): {
+        min: number;
+        interval: number;
+    };
+    /**
+     *  预处理最小值
+     * @param minData
+     * @param maxData
+     */
     preHandleMin(minData: number, maxData: number): {
         min: number;
         intervals: number[];
     }[];
-    private handleMin;
 }
 export default YAxisTransformer;

@@ -17,27 +17,51 @@ export type Unit = { range: number, unit: string }
 export type TransformResult = { data: number[], dataUnit: string[], adviseDecimal: number, min: number, max: number, unit: Unit }
 
 export class YAxisTransformer {
-    
+
+     /**
+     * 奇数基准值生成策略
+     */
+    oddBaseGenStrategy = (basePowNum:number) => {
+        const array:number[] = [];
+        [10, 5, 2.5].forEach(item => array.push(item * basePowNum))
+        return array
+    }
+
+   /**
+     * 偶数数基准值生成策略
+     */
+    evenBaseGenStrategy = (basePowNum:number) => {
+        const array:number[] = [];
+        [10, 8, 6, 4].forEach(item => array.push(item * basePowNum))
+        return array
+     }
+
+    /**
+     * 所有基准值生成策略
+     */
+    allBaseGenStrategy = (basePowNum:number) => {
+        const array:number[] = [];
+        [10, 8, 6, 5, 4, 2.5, 2].forEach(item => array.push(item * basePowNum))
+        return array
+     }
+
+      
+    /**
+     * 最小值基准值生成策略
+     */
     minBaseGenStrategry = (interval:number, minData:number) => {
         let base = AxisHelper.genPowNum(interval)
         if(minData < 0) {
             base = - base
-        }
-        let baseArray = [8 * base, 6 * base, 5 * base, 4 * base, 2.5 * base, 2 * base, 0]
+        };
+
+        const array:number[] = [];
+        [8, 6, 5, 4, 2.5, 2, 0].forEach(item => array.push(item * base))
         if(minData < 0) {
-            baseArray = baseArray.reverse()
+           return array.reverse()
+        } else {
+           return array
         }
-
-        return baseArray
-    }
-
-    defaultBaseGenStrategy = (originInterval: number) => {
-        let base = AxisHelper.genPowNum(originInterval)
-        let baseArray = [10 * base, 5 * base, 2* base, base]
-        if (originInterval < 0) {
-            baseArray = baseArray.reverse()
-        }
-        return baseArray
     }
 
     defaultFormatRuler = (data: number, decimal: number) => {
@@ -55,11 +79,6 @@ export class YAxisTransformer {
     get minData() {
         return this._minData
     }
-
-    /**
-     *  基准值生成策略
-     */
-    private baseGenStrategy: Strategy = this.defaultBaseGenStrategy
 
     /**
      * 格式化数据的规则
@@ -156,11 +175,6 @@ export class YAxisTransformer {
         return this
     }
 
-    withBaseGenStrategy(baseGenStrategy: Strategy) {
-        this.baseGenStrategy = baseGenStrategy
-        return this
-    }
-
     withFormatRuler(formatRuler: FormatRuler) {
         this.formatRuler = formatRuler
         return this
@@ -205,7 +219,7 @@ export class YAxisTransformer {
         this.sortUnitSet()
         let {
             _count, keepUnitSame, usePercentUnit, maxDecimal,
-            unitFollowMax, forceDecimal, keepZeroUnit, baseGenStrategy,
+            unitFollowMax, forceDecimal, keepZeroUnit,
             formatRuler, withKeepZeroDecimal
         } = this
 
@@ -235,17 +249,14 @@ export class YAxisTransformer {
         let adviceDecimal
         let interval
 
-        const result = this.preHandleMin(this._minData, this._maxData)
-        this.findInterval(result, this._maxData)
+        const handelMinArray = this.preHandleMin(this._minData, this._maxData)
+        const result = this.findInterval(handelMinArray, this._maxData)
 
          // 处理最小值 
         // 找出规整间距
-        this._minData = this.handleMin(this._maxData, this._minData)
-        interval = (this._maxData - this._minData) / _count
-        interval = AxisHelper.findInterval(interval, baseGenStrategy)
+        this._minData = result.min
+        interval = result.interval
         this._maxData = AxisHelper.genMaxData(this._minData, interval, _count)
- 
-
 
         // 找出单位
         unit = AxisHelper.minUnit
@@ -259,13 +270,13 @@ export class YAxisTransformer {
         let reference = unitFollowMax ? this._maxData : this._minData
         let min = this._minData < interval ? this._minData : interval
         // 处理小数位数
+      
         adviceDecimal = AxisHelper.getDecimal(min, reference, interval, unit)
         // 如果没有强制小数位数，使用建议小数位数
         if (!decimal) {
             adviceDecimal = Math.min(adviceDecimal, this.maxDecimal)
             decimal = adviceDecimal
         }
-
         const data: number[] = []
         const dataUnit: string[] = []
         for (let i = 0; i < _count + 1; i++) {
@@ -324,11 +335,15 @@ export class YAxisTransformer {
         return unit
     }
 
-
-    findInterval(handleMinResult: {min:number, intervals:number[]}[], _maxData:number) {
+    /**
+     * 找出间距
+     * @param handleMinArray 
+     * @param _maxData 
+     */
+    findInterval(handleMinArray: {min:number, intervals:number[]}[], _maxData:number) {
         const { _count} = this
         let findIntervals:{min:number, interval:number}[] = []
-        handleMinResult.forEach((item) => {
+        handleMinArray.forEach((item) => {
             const minData = item.min
             const originInterval = (_maxData - minData) / _count
             const intervals = item.intervals
@@ -337,27 +352,23 @@ export class YAxisTransformer {
             if(findIndex < 0){
                 findIndex =  intervals.length
             }
-
             const finalInterval = intervals[Math.max(0, findIndex - 1)]
             findIntervals.push({min:minData, interval: finalInterval})
         })
+
 
         findIntervals.sort((o1, o2) => {
             const diff = o1.interval - o2.interval
             return diff == 0 ? Math.abs(o1.min) - Math.abs(o2.min) : diff
         })
-        const finalResult = findIntervals[0]
-
-        let newArray:number[] = []
-        for(let i = 0; i <= this._count; i ++) {
-            newArray.push(finalResult.min + finalResult.interval * i)
-        }
-
-        console.log(JSON.stringify(findIntervals))
-        console.log(JSON.stringify(newArray))
+        return findIntervals[0]
     }
 
-
+    /**
+     *  预处理最小值
+     * @param minData 
+     * @param maxData 
+     */
     preHandleMin(minData: number, maxData: number) {
         let { _count, minBaseGenStrategry } = this
         let interval = (maxData - minData) / _count
@@ -367,28 +378,25 @@ export class YAxisTransformer {
         if(minData > 0 && minData < interval) {
             minArray.push({
                 min: 0,
-                intervals:[10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
-                     4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum]
+                intervals:this.allBaseGenStrategy(basePowNum)
             })
 
         } else {
             const baseArray = minBaseGenStrategry(interval, minData)
-            const maxHandleCount = 3
+            const maxHandleCount = 4
             const handlePart = minData % (basePowNum * 10) 
             const remainPart = minData - handlePart
-
 
             for(let i = 0; i < baseArray.length; i ++) {
                 const item = baseArray[i]
                 if(item <= handlePart) {
                     let intervals:number[] = []
                     if(item == 0) {
-                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 5 * basePowNum,
-                            4 * basePowNum, 2.5 * basePowNum, 2 * basePowNum]
+                        intervals = this.allBaseGenStrategy(basePowNum)
                     } else if(item % (2.5 * basePowNum) == 0) {
-                        intervals = [10 * basePowNum, 5 * basePowNum, 2.5 * basePowNum]
+                        intervals = this.oddBaseGenStrategy(basePowNum)
                     } else {
-                        intervals = [10 * basePowNum, 8 * basePowNum, 6 * basePowNum, 4 * basePowNum, 2 * basePowNum]
+                        intervals = this.evenBaseGenStrategy(basePowNum)
                     }
 
                     const newMin = remainPart + item
@@ -397,54 +405,13 @@ export class YAxisTransformer {
                         intervals:intervals
                     })
                 }
+
                 if(minArray.length == maxHandleCount) {
                     break
                 }
             }
         }
         return minArray
-    }
-
-
-
-    private handleMin(maxData: number, minData: number) {
-        let { _count, minToZero, baseGenStrategy } = this
-
-        let interval = (maxData - minData) / _count
-        let baseInterval = AxisHelper.findInterval(interval, this.baseGenStrategy)
-
-        if (minData > 0 && baseInterval > minData) {
-            return minToZero ? 0 : AxisHelper.findMinInterval(minData, baseGenStrategy)
-
-        } else if (minData < 0 && baseInterval > Math.abs(minData)) {
-            return AxisHelper.findMinInterval(minData, baseGenStrategy)
-            
-        } else {
-            let intervalPowNum = AxisHelper.genPowNum(baseInterval)
-            let baseNum = intervalPowNum * 10
-
-            let keepPart
-            if (minData >= 0) {
-                keepPart = Math.floor(minData / baseNum) * baseNum
-            } else {
-                keepPart = - Math.floor(Math.abs(minData) / baseNum) * baseNum
-            }
-
-            let remainPart = minData - keepPart
-            let remainPowNum = AxisHelper.genPowNum(remainPart)
-
-            let result = keepPart
-            //如果间距和需要处理的是同一个数量级 则需要再做查找interval的操作
-            //否则直接舍弃处理的part
-            if (Math.abs(intervalPowNum) == Math.abs(remainPowNum)) {
-                const interval = AxisHelper.findMinInterval(remainPart, baseGenStrategy)
-
-                // 计算保留的最大小数位数
-                const maxDecimal = Math.max(AxisHelper.getDecimalNum(interval), AxisHelper.getDecimalNum(keepPart))
-                result = Number(bignumber(keepPart).add(bignumber(interval)).toFixed(maxDecimal))
-            }
-            return result
-        }
     }
 
 }
