@@ -47,6 +47,7 @@ export declare function decimalToInt(data: number): number;
  */
 export declare function isContainDecimal(data: number): boolean;
 export declare function isContainInt(data: number): boolean;
+export declare function getValidDecimalNum(data: number, unit: Unit): void;
 /**
  * 大致思路就是为了获取最小的数
  * 相对于参考值的倍数

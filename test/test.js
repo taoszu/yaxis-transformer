@@ -231,7 +231,7 @@ describe('yaxis transform test 12', () => {
   });
 }); */
 
-describe('pre handle min', () => {
+/* describe('pre handle min', () => {
   it('test baseGen ', () => {
 
     const array = [
@@ -278,86 +278,20 @@ describe('pre handle min', () => {
       {x:23, y:138},
       {x:23000000, y:138000000},
       {x:6520, y:13800},
+      {x:100, y:9900},
+      {x:42670, y:43800},
+      {x:9000, y:10800},
     ]
+
 
     const yaxisTransformer = new YaxisTransformer()
     array.forEach((item) => {
-      console.log(item.x + " -> " + item.y)
-
       const result = yaxisTransformer.withMinMaxData(item.x, item.y)
       .transform()
-
-      console.log(JSON.stringify(result)  + "\n")
+      console.log(JSON.stringify(result.data))
+      console.log(JSON.stringify(result.dataUnit)  + "\n")
     })
-  });
-})
-
-
-/* describe('yaxis transform test 13', () => {
-  it('result ', () => {
-
-    const array = [
-      {x:30.9, y:108},
-      {x:0.363, y:0.667},
-      {x:0.34, y:0.439}, 
-      {x:0.034, y:0.439}, 
-      {x:201.7, y:450.2},
-      {x:201.7, y:850.2},      
-      {x:0.484, y:0.649},
-      {x:0.58, y:1.24},
-      {x:58, y:124},
-      {x:3302, y:8000},
-      {x:3.1, y:12.8},
-      {x:0.8, y:4.8},
-      {x:4.7, y:8.5},
-      {x:173, y:926},
-      {x:52, y:218},
-      {x:52, y:218},
-      {x:4, y:10},
-      {x:23, y:42},
-      {x:442, y:550},
-      {x:17.9, y:22.7},
-      {x:80, y:200},
-    ]
-
-    const array1 = [
-      -16.4,
-      16.4,
-      0.6,
-      5,
-      -6,
-      6,
-      0.53,
-      0.625,
-      6.25,
-      -0.53,
-      1.53,
-      53,
-      153,
-      0.22,
-      1.22,
-      91.22,
-      250.6,
-    ]
-    const yaxisTransformer = new YaxisTransformer()
-    array1.forEach(item => {
-      //    console.log(item + " ->max " + yaxisTransformer.takeInterval(item * 4))
-    //  console.log(item + " -> min " + yaxisTransformer.keepNumFactor(item, 5, false))
-      //console.log(item + " -> max " + yaxisTransformer.keepNumFactor(item, 5, true))
-    })
-
-    array.forEach(item => {
-      let transformResult = yaxisTransformer
-        .withMinMaxData(item.x, item.y)
-        .withCount(4)
-        .transform()
-       console.log(item.x + " " + item.y + " [ " + transformResult.dataUnit.join(" : ") + " ]" + "\n")
-    })
-
-
-
-
-    //expect(transformResult.dataUnit).deep.equal(['0.10', '0.12', '0.14', '0.16', '0.18']).deep
 
   });
-}); */
+
+}) */

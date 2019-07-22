@@ -103,6 +103,9 @@ function isContainInt(data) {
     return data >= 1;
 }
 exports.isContainInt = isContainInt;
+function getValidDecimalNum(data, unit) {
+}
+exports.getValidDecimalNum = getValidDecimalNum;
 /**
  * 大致思路就是为了获取最小的数
  * 相对于参考值的倍数
@@ -128,7 +131,7 @@ function getDecimal(min, reference, interval, unit) {
             decimal = 0;
         }
         else {
-            decimal = getPowBit(unit.range) - (min == 0 ? getPowBit(interval) : getPowBit(min));
+            decimal = (min == 0) ? getDecimalNum(interval / unit.range) : getDecimalNum(min / unit.range);
         }
     }
     decimal = Math.max(0, decimal);

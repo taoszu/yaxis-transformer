@@ -106,6 +106,10 @@ export function isContainInt(data: number) {
     return data >= 1
 }
 
+export function getValidDecimalNum(data: number, unit:Unit) {
+    
+}
+
 /**
  * 大致思路就是为了获取最小的数
  * 相对于参考值的倍数
@@ -130,7 +134,7 @@ export function getDecimal(min: number, reference:number, interval:number, unit:
         if(min > reference || isEmpty(unit.unit)) {
             decimal = 0
         } else {
-            decimal = getPowBit(unit.range) - (min == 0 ? getPowBit(interval) : getPowBit(min))
+            decimal = (min == 0) ? getDecimalNum(interval/unit.range) : getDecimalNum(min/unit.range) 
         }
     }
     decimal = Math.max(0, decimal)
