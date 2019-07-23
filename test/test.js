@@ -231,7 +231,7 @@ describe('yaxis transform test 12', () => {
   });
 }); */
 
-/* describe('pre handle min', () => {
+/*  describe('pre handle min', () => {
   it('test baseGen ', () => {
 
     const array = [
@@ -281,6 +281,9 @@ describe('yaxis transform test 12', () => {
       {x:100, y:9900},
       {x:42670, y:43800},
       {x:9000, y:10800},
+      {x:14.5, y:14.5},
+      {x:0, y:0},
+      {x:0.096, y:0.096},
     ]
 
 
@@ -294,4 +297,4 @@ describe('yaxis transform test 12', () => {
 
   });
 
-}) */
+})  */

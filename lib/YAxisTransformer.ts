@@ -244,6 +244,16 @@ export class YAxisTransformer {
             throw `minData: ${this._minData} >  maxData: ${this._maxData}`
         }
 
+        // 最大最小值相等时的处理
+        if (this._minData == this._maxData) {
+            if (this._maxData == 0) {
+                this._maxData = this.usePercentUnit ? 1 : 100
+                this._minData = 0
+            } else {
+                this._maxData  = this._minData + Math.abs(this._minData) * this._count
+            }
+        }
+
         let unit
         let decimal = forceDecimal
         let adviceDecimal
@@ -348,7 +358,7 @@ export class YAxisTransformer {
             const originInterval = (_maxData - minData) / _count
             const intervals = item.intervals
 
-            let findIndex = intervals.findIndex((interval)=> originInterval >= interval )
+            let findIndex = intervals.findIndex((interval)=> originInterval > interval )
             if(findIndex < 0){
                 findIndex =  intervals.length
             }
@@ -374,7 +384,7 @@ export class YAxisTransformer {
         let interval = (maxData - minData) / _count
 
         let minArray = []
-        if(minData > 0 && minData < interval) {
+        if(minData >= 0 && minData < interval) {
             let newMin = 0
             let basePowNum = AxisHelper.genPowNum(maxData/_count)
 

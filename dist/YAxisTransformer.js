@@ -201,6 +201,16 @@ var YAxisTransformer = /** @class */ (function () {
         if (this._minData > this._maxData) {
             throw "minData: " + this._minData + " >  maxData: " + this._maxData;
         }
+        // 最大最小值相等时的处理
+        if (this._minData == this._maxData) {
+            if (this._maxData == 0) {
+                this._maxData = this.usePercentUnit ? 1 : 100;
+                this._minData = 0;
+            }
+            else {
+                this._maxData = this._minData + Math.abs(this._minData) * this._count;
+            }
+        }
         var unit;
         var decimal = forceDecimal;
         var adviceDecimal;
@@ -287,14 +297,13 @@ var YAxisTransformer = /** @class */ (function () {
      * @param _maxData
      */
     YAxisTransformer.prototype.findInterval = function (handleMinArray, _maxData) {
-        console.log(JSON.stringify(handleMinArray));
         var _count = this._count;
         var findIntervals = [];
         handleMinArray.forEach(function (item) {
             var minData = item.min;
             var originInterval = (_maxData - minData) / _count;
             var intervals = item.intervals;
-            var findIndex = intervals.findIndex(function (interval) { return originInterval >= interval; });
+            var findIndex = intervals.findIndex(function (interval) { return originInterval > interval; });
             if (findIndex < 0) {
                 findIndex = intervals.length;
             }
@@ -316,7 +325,7 @@ var YAxisTransformer = /** @class */ (function () {
         var _a = this, _count = _a._count, minBaseGenStrategry = _a.minBaseGenStrategry;
         var interval = (maxData - minData) / _count;
         var minArray = [];
-        if (minData > 0 && minData < interval) {
+        if (minData >= 0 && minData < interval) {
             var newMin = 0;
             var basePowNum = AxisHelper.genPowNum(maxData / _count);
             minArray.push({

@@ -386,6 +386,16 @@
 	        if (this._minData > this._maxData) {
 	            throw "minData: " + this._minData + " >  maxData: " + this._maxData;
 	        }
+	        // 最大最小值相等时的处理
+	        if (this._minData == this._maxData) {
+	            if (this._maxData == 0) {
+	                this._maxData = this.usePercentUnit ? 1 : 100;
+	                this._minData = 0;
+	            }
+	            else {
+	                this._maxData = this._minData + Math.abs(this._minData) * this._count;
+	            }
+	        }
 	        var unit;
 	        var decimal = forceDecimal;
 	        var adviceDecimal;
@@ -499,15 +509,17 @@
 	    YAxisTransformer.prototype.preHandleMin = function (minData, maxData) {
 	        var _a = this, _count = _a._count, minBaseGenStrategry = _a.minBaseGenStrategry;
 	        var interval = (maxData - minData) / _count;
-	        var basePowNum = AxisHelper$1.genPowNum(interval);
 	        var minArray = [];
 	        if (minData > 0 && minData < interval) {
+	            var newMin = 0;
+	            var basePowNum = AxisHelper$1.genPowNum(maxData / _count);
 	            minArray.push({
-	                min: 0,
+	                min: newMin,
 	                intervals: this.allBaseGenStrategy(basePowNum)
 	            });
 	        }
 	        else {
+	            var basePowNum = AxisHelper$1.genPowNum(interval);
 	            var baseArray = minBaseGenStrategry(interval, minData);
 	            var maxHandleCount = 4;
 	            var handlePart = minData % (basePowNum * 10);
@@ -515,7 +527,9 @@
 	            for (var i = 0; i < baseArray.length; i++) {
 	                var item = baseArray[i];
 	                if (item <= handlePart) {
+	                    var newMin = remainPart + item;
 	                    var intervals = [];
+	                    basePowNum = AxisHelper$1.genPowNum((maxData - newMin) / this._count);
 	                    if (item == 0) {
 	                        intervals = this.allBaseGenStrategy(basePowNum);
 	                    }
@@ -525,7 +539,6 @@
 	                    else {
 	                        intervals = this.evenBaseGenStrategy(basePowNum);
 	                    }
-	                    var newMin = remainPart + item;
 	                    minArray.push({
 	                        min: newMin,
 	                        intervals: intervals
