@@ -210,7 +210,7 @@
 	          */
 	        this.evenBaseGenStrategy = function (basePowNum) {
 	            var array = [];
-	            [10, 8, 6, 4].forEach(function (item) { return array.push(item * basePowNum); });
+	            [10, 8, 6, 4, 2].forEach(function (item) { return array.push(item * basePowNum); });
 	            return array;
 	        };
 	        /**

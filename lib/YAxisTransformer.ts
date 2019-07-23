@@ -32,7 +32,7 @@ export class YAxisTransformer {
      */
     evenBaseGenStrategy = (basePowNum:number) => {
         const array:number[] = [];
-        [10, 8, 6, 4].forEach(item => array.push(item * basePowNum))
+        [10, 8, 6, 4, 2].forEach(item => array.push(item * basePowNum))
         return array
      }
 
