@@ -45,7 +45,7 @@ var YAxisTransformer = /** @class */ (function () {
             }
             ;
             var array = [];
-            [8, 6, 5, 4, 2.5, 2, 0].forEach(function (item) { return array.push(item * base); });
+            [10, 8, 6, 5, 4, 2.5, 2, 0].forEach(function (item) { return array.push(item * base); });
             if (minData < 0) {
                 return array.reverse();
             }
@@ -219,8 +219,13 @@ var YAxisTransformer = /** @class */ (function () {
         var result = this.findInterval(handelMinArray, this._maxData);
         // 处理最小值 
         // 找出规整间距
-        this._minData = result.min;
-        interval = result.interval;
+        if (result) {
+            this._minData = result.min;
+            interval = result.interval;
+        }
+        else {
+            interval = this._maxData - this._minData;
+        }
         this._maxData = AxisHelper.genMaxData(this._minData, interval, _count);
         // 找出单位
         unit = AxisHelper.minUnit;
@@ -232,9 +237,10 @@ var YAxisTransformer = /** @class */ (function () {
         }
         // 找出参考值
         var reference = unitFollowMax ? this._maxData : this._minData;
-        var min = this._minData < interval ? this._minData : interval;
-        // 处理小数位数
-        adviceDecimal = AxisHelper.getDecimal(min, reference, interval, unit);
+        var min = this._minData;
+        var hasDecimal = AxisHelper.isContainDecimal(min) || AxisHelper.isContainDecimal(interval);
+        // 处理小数位数  
+        adviceDecimal = AxisHelper.getDecimal(hasDecimal, min, reference, interval, unit);
         // 如果没有强制小数位数，使用建议小数位数
         if (!decimal) {
             adviceDecimal = Math.min(adviceDecimal, this.maxDecimal);
@@ -242,30 +248,7 @@ var YAxisTransformer = /** @class */ (function () {
         }
         var data = [];
         var dataUnit = [];
-        for (var i = 0; i < _count + 1; i++) {
-            var result_1 = this._minData + interval * i;
-            data.push(result_1);
-            // 找单位
-            if (!keepUnitSame && !usePercentUnit) {
-                unit = this.findUnit(result_1);
-            }
-            var formatResult = void 0;
-            if (result_1 == 0 && !this.keepZeroDecimal) {
-                formatResult = "0";
-            }
-            else {
-                formatResult = formatRuler(result_1 / unit.range, decimal);
-            }
-            // 如果格式化之前不是0 格式化之后为0 也需要做处理
-            if (!this.keepZeroDecimal && Number(formatResult) == 0) {
-                result_1 = 0;
-                formatResult = "0";
-            }
-            if (result_1 != 0 || keepZeroUnit) {
-                formatResult = formatResult + unit.unit;
-            }
-            dataUnit.push(formatResult);
-        }
+        var newDecimal = this.formatDataWithCheck(data, dataUnit, unit, interval, decimal, true);
         return {
             data: data,
             dataUnit: dataUnit,
@@ -274,6 +257,38 @@ var YAxisTransformer = /** @class */ (function () {
             max: data[data.length - 1],
             unit: unit
         };
+    };
+    YAxisTransformer.prototype.formatDataWithCheck = function (data, dataUnit, unit, interval, decimal, check) {
+        var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, formatRuler = _a.formatRuler, keepZeroUnit = _a.keepZeroUnit;
+        var realDecimal = decimal;
+        for (var i = 0; i < _count + 1; i++) {
+            var result = this._minData + interval * i;
+            data.push(result);
+            // 找单位
+            if (!keepUnitSame && !usePercentUnit) {
+                unit = this.findUnit(result);
+            }
+            var formatResult = void 0;
+            if (result == 0 && !this.keepZeroDecimal) {
+                formatResult = "0";
+            }
+            else {
+                formatResult = formatRuler(result / unit.range, decimal);
+            }
+            // 如果格式化之前不是0 格式化之后为0 也需要做处理
+            if (!this.keepZeroDecimal && Number(formatResult) == 0) {
+                result = 0;
+                formatResult = "0";
+            }
+            if (check && result != 0 && formatResult !== "0") {
+                realDecimal = Math.min(realDecimal, AxisHelper.getValidDecimalNum(Number(formatResult)));
+            }
+            if (result != 0 || keepZeroUnit) {
+                formatResult = formatResult + unit.unit;
+            }
+            dataUnit.push(formatResult);
+        }
+        return realDecimal;
     };
     YAxisTransformer.prototype.sortUnitSet = function () {
         var unitSet = this.unitSet;
@@ -342,7 +357,7 @@ var YAxisTransformer = /** @class */ (function () {
             for (var i = 0; i < baseArray.length; i++) {
                 var item = baseArray[i];
                 if (item <= handlePart) {
-                    var newMin = remainPart + item;
+                    var newMin = AxisHelper.keepValidDecimal((remainPart + item).toFixed(this.maxDecimal));
                     var intervals = [];
                     basePowNum = AxisHelper.genPowNum((maxData - newMin) / this._count);
                     if (item == 0) {

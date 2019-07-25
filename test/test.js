@@ -231,7 +231,7 @@ describe('yaxis transform test 12', () => {
   });
 }); */
 
-/*  describe('pre handle min', () => {
+  describe('pre handle min', () => {
   it('test baseGen ', () => {
 
     const array = [
@@ -284,17 +284,26 @@ describe('yaxis transform test 12', () => {
       {x:14.5, y:14.5},
       {x:0, y:0},
       {x:0.096, y:0.096},
+      {x:3.2589, y:3.6549},
+      {x:3.2589, y:3.6549},
+      {x:1566849695.4393, y:5231202333.9184 },
+      {x:15, y:52 },
+      {x:-9727404112.48, y:2920489549.08 },
+      {x:-0.2923, y:0.0093 },
+      {x:0.3274969378504763, y:0.5411613159439665 },
+      {x:-0.5258, y:0.0071}
     ]
-
+    
+  
 
     const yaxisTransformer = new YaxisTransformer()
     array.forEach((item) => {
       const result = yaxisTransformer.withMinMaxData(item.x, item.y)
       .transform()
-      console.log(JSON.stringify(result.data))
+  
       console.log(JSON.stringify(result.dataUnit)  + "\n")
     })
 
   });
 
-})  */
+})  

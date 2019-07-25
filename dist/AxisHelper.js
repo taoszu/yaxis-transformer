@@ -107,9 +107,28 @@ function isContainInt(data) {
     return data >= 1;
 }
 exports.isContainInt = isContainInt;
-function getValidDecimalNum(data, unit) {
+function getValidDecimalNum(value) {
+    var data = value.toString();
+    var decimalIndex = data.indexOf(".");
+    if (decimalIndex < 0) {
+        return 0;
+    }
+    else {
+        if (data.lastIndexOf("0") == data.length - 1) {
+            var decimalStr = data.substring(decimalIndex).replace("0", "");
+            return decimalStr.length;
+        }
+        else {
+            return data.length - decimalIndex - 1;
+        }
+    }
 }
 exports.getValidDecimalNum = getValidDecimalNum;
+function keepValidDecimal(data) {
+    var value = Number(data);
+    return Number(value.toFixed(getValidDecimalNum(value)));
+}
+exports.keepValidDecimal = keepValidDecimal;
 /**
  * 大致思路就是为了获取最小的数
  * 相对于参考值的倍数
@@ -121,21 +140,25 @@ exports.getValidDecimalNum = getValidDecimalNum;
  * @param interval
  * @param unit
  */
-function getDecimal(min, reference, interval, unit) {
+function getDecimal(hasDecimal, min, reference, interval, unit) {
     var decimal;
-    var isMinContainDecimal = isContainDecimal(min);
-    var isIntervalContainDecimal = isContainDecimal(interval);
-    if (isMinContainDecimal || isIntervalContainDecimal) {
+    if (hasDecimal) {
         var minDecimal = getDecimalNum(min);
         var intervalDecimal = getDecimalNum(interval);
         decimal = Math.max(minDecimal, intervalDecimal);
     }
     else {
-        if (min > reference || isEmpty(unit.unit)) {
+        var realMin = min < interval ? min : interval;
+        if (realMin > reference || isEmpty(unit.unit)) {
             decimal = 0;
         }
         else {
-            decimal = (min == 0) ? getDecimalNum(interval / unit.range) : getDecimalNum(min / unit.range);
+            if (realMin == 0) {
+                decimal = getDecimalNum(interval / unit.range);
+            }
+            else {
+                decimal = Math.max(getDecimalNum(min / unit.range), getDecimalNum(interval / unit.range));
+            }
         }
     }
     decimal = Math.max(0, decimal);

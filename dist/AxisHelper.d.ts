@@ -48,7 +48,8 @@ export declare function decimalToInt(data: number): number;
  */
 export declare function isContainDecimal(data: number): boolean;
 export declare function isContainInt(data: number): boolean;
-export declare function getValidDecimalNum(data: number, unit: Unit): void;
+export declare function getValidDecimalNum(value: number): number;
+export declare function keepValidDecimal(data: string): number;
 /**
  * 大致思路就是为了获取最小的数
  * 相对于参考值的倍数
@@ -60,5 +61,5 @@ export declare function getValidDecimalNum(data: number, unit: Unit): void;
  * @param interval
  * @param unit
  */
-export declare function getDecimal(min: number, reference: number, interval: number, unit: Unit): number;
+export declare function getDecimal(hasDecimal: boolean, min: number, reference: number, interval: number, unit: Unit): number;
 export declare function isEmpty(text: string): boolean;

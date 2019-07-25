@@ -109,8 +109,24 @@ export function isContainInt(data: number) {
     return data >= 1
 }
 
-export function getValidDecimalNum(data: number, unit:Unit) {
-    
+export function getValidDecimalNum(value:number) {
+    const data = value.toString()
+    let decimalIndex = data.indexOf(".")
+    if(decimalIndex < 0) {
+        return 0
+    } else {
+        if(data.lastIndexOf("0") == data.length - 1) {
+            const decimalStr = data.substring(decimalIndex).replace("0", "")
+            return decimalStr.length
+        } else {
+            return data.length - decimalIndex - 1
+        }
+    }
+}
+
+export function keepValidDecimal(data:string) {
+    const value = Number(data)
+    return Number(value.toFixed(getValidDecimalNum(value)))
 }
 
 /**
@@ -124,20 +140,23 @@ export function getValidDecimalNum(data: number, unit:Unit) {
  * @param interval
  * @param unit 
  */
-export function getDecimal(min: number, reference:number, interval:number, unit:Unit) {
+export function getDecimal(hasDecimal:boolean, min: number, reference:number, interval:number, unit:Unit) {
     let decimal
-    const isMinContainDecimal = isContainDecimal(min)
-    const isIntervalContainDecimal = isContainDecimal(interval)
-    if(isMinContainDecimal || isIntervalContainDecimal) {
+
+    if(hasDecimal) {
         const minDecimal = getDecimalNum(min)
         const intervalDecimal = getDecimalNum(interval)
         decimal = Math.max(minDecimal, intervalDecimal)
-
     } else {
-        if(min > reference || isEmpty(unit.unit)) {
+        const realMin = min < interval ? min: interval
+        if(realMin > reference || isEmpty(unit.unit)) {
             decimal = 0
         } else {
-            decimal = (min == 0) ? getDecimalNum(interval/unit.range) : getDecimalNum(min/unit.range) 
+            if(realMin == 0) {
+                decimal = getDecimalNum(interval/unit.range)
+            } else {
+                decimal = Math.max(getDecimalNum(min/unit.range), getDecimalNum(interval/unit.range))
+            }
         }
     }
     decimal = Math.max(0, decimal)

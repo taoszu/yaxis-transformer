@@ -102,6 +102,7 @@ export declare class YAxisTransformer {
     withMinToZero(minToZero: boolean): this;
     withKeepZeroDecimal(keepZeroDecimal: boolean): this;
     transform(): TransformResult;
+    private formatDataWithCheck;
     private sortUnitSet;
     private findUnit;
     /**

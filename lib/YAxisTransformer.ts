@@ -56,7 +56,7 @@ export class YAxisTransformer {
         };
 
         const array:number[] = [];
-        [8, 6, 5, 4, 2.5, 2, 0].forEach(item => array.push(item * base))
+        [10, 8, 6, 5, 4, 2.5, 2, 0].forEach(item => array.push(item * base))
         if(minData < 0) {
            return array.reverse()
         } else {
@@ -264,8 +264,13 @@ export class YAxisTransformer {
 
          // 处理最小值 
         // 找出规整间距
-        this._minData = result.min
-        interval = result.interval
+        if(result) {
+            this._minData = result.min
+            interval = result.interval
+        } else {
+            interval = this._maxData - this._minData
+        }
+
         this._maxData = AxisHelper.genMaxData(this._minData, interval, _count)
 
         // 找出单位
@@ -278,17 +283,34 @@ export class YAxisTransformer {
 
         // 找出参考值
         let reference = unitFollowMax ? this._maxData : this._minData
-        let min = this._minData < interval ? this._minData : interval
-        // 处理小数位数
-      
-        adviceDecimal = AxisHelper.getDecimal(min, reference, interval, unit)
+        let min = this._minData
+    
+        const hasDecimal = AxisHelper.isContainDecimal(min) || AxisHelper.isContainDecimal(interval)
+        // 处理小数位数  
+        adviceDecimal = AxisHelper.getDecimal(hasDecimal, min, reference, interval, unit)
         // 如果没有强制小数位数，使用建议小数位数
         if (!decimal) {
             adviceDecimal = Math.min(adviceDecimal, this.maxDecimal)
             decimal = adviceDecimal
         }
-        const data: number[] = []
-        const dataUnit: string[] = []
+        let data: number[] = []
+        let dataUnit: string[] = []
+        this.formatData(data, dataUnit, unit, interval, decimal)
+
+        return {
+            data: data,
+            dataUnit: dataUnit,
+            adviseDecimal: adviceDecimal,
+            min: data[0],
+            max: data[data.length - 1],
+            unit: unit
+        }
+
+    }
+
+    private formatData(data: number[], dataUnit:string[], unit:Unit, interval:number, decimal:number) {
+        const {_count, keepUnitSame, usePercentUnit, formatRuler, keepZeroUnit, } = this
+
         for (let i = 0; i < _count + 1; i++) {
             let result = this._minData + interval * i
             data.push(result)
@@ -304,27 +326,17 @@ export class YAxisTransformer {
             } else {
                 formatResult = formatRuler(result / unit.range, decimal)
             }
-
             // 如果格式化之前不是0 格式化之后为0 也需要做处理
             if (!this.keepZeroDecimal && Number(formatResult) == 0) {
                 result = 0
                 formatResult = "0"
             }
+
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit
             }
             dataUnit.push(formatResult)
         }
-
-        return {
-            data: data,
-            dataUnit: dataUnit,
-            adviseDecimal: adviceDecimal,
-            min: data[0],
-            max: data[data.length - 1],
-            unit: unit
-        }
-
     }
 
     private sortUnitSet() {
@@ -404,7 +416,8 @@ export class YAxisTransformer {
             for(let i = 0; i < baseArray.length; i ++) {
                 const item = baseArray[i]
                 if(item <= handlePart) {
-                    const newMin = remainPart + item
+                    const newMin = AxisHelper.keepValidDecimal((remainPart + item).toFixed(this.maxDecimal))
+
                     let intervals:number[] = []
                     basePowNum = AxisHelper.genPowNum((maxData - newMin)/ this._count)
 
