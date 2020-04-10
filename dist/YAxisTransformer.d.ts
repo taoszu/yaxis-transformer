@@ -21,12 +21,12 @@ export declare type TransformResult = {
 };
 export declare class YAxisTransformer {
     /**
-    * 奇数基准值生成策略
-    */
+     * 奇数基准值生成策略
+     */
     oddBaseGenStrategy: (basePowNum: number) => number[];
     /**
-      * 偶数数基准值生成策略
-      */
+     * 偶数数基准值生成策略
+     */
     evenBaseGenStrategy: (basePowNum: number) => number[];
     /**
      * 所有基准值生成策略
@@ -102,7 +102,7 @@ export declare class YAxisTransformer {
     withMinToZero(minToZero: boolean): this;
     withKeepZeroDecimal(keepZeroDecimal: boolean): this;
     transform(): TransformResult;
-    private formatDataWithCheck;
+    private formatData;
     private sortUnitSet;
     private findUnit;
     /**

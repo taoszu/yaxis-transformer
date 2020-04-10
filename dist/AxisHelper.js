@@ -124,6 +124,15 @@ function getValidDecimalNum(value) {
     }
 }
 exports.getValidDecimalNum = getValidDecimalNum;
+/**
+ * 保存data的小数位数和decimal一致
+ * @param data
+ * @param decimal
+ */
+function keepDecimalNumber(data, decimal) {
+    return Number(data.toFixed(decimal));
+}
+exports.keepDecimalNumber = keepDecimalNumber;
 function keepValidDecimal(data) {
     var value = Number(data);
     return Number(value.toFixed(getValidDecimalNum(value)));

@@ -124,6 +124,15 @@ export function getValidDecimalNum(value:number) {
     }
 }
 
+/**
+ * 保存data的小数位数和decimal一致
+ * @param data 
+ * @param decimal 
+ */
+export function keepDecimalNumber(data:number, decimal:number) {
+    return Number(data.toFixed(decimal))
+}
+
 export function keepValidDecimal(data:string) {
     const value = Number(data)
     return Number(value.toFixed(getValidDecimalNum(value)))

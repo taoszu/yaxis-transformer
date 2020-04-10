@@ -12,19 +12,23 @@ var YAxisTransformer = /** @class */ (function () {
     function YAxisTransformer(values) {
         var _this = this;
         /**
-        * 奇数基准值生成策略
-        */
+         * 奇数基准值生成策略
+         */
         this.oddBaseGenStrategy = function (basePowNum) {
             var array = [];
-            [10, 5, 2.5].forEach(function (item) { return array.push(item * basePowNum); });
+            var decimal = AxisHelper.getValidDecimalNum(basePowNum);
+            [10, 5, 2.5].forEach(function (item) { return array.push(AxisHelper.keepDecimalNumber(item * basePowNum, decimal)); });
             return array;
         };
         /**
-          * 偶数数基准值生成策略
-          */
+         * 偶数数基准值生成策略
+         */
         this.evenBaseGenStrategy = function (basePowNum) {
             var array = [];
-            [10, 8, 6, 4, 2].forEach(function (item) { return array.push(item * basePowNum); });
+            var decimal = AxisHelper.getValidDecimalNum(basePowNum);
+            [10, 8, 6, 4, 2].forEach(function (item) {
+                return array.push(AxisHelper.keepDecimalNumber(item * basePowNum, decimal));
+            });
             return array;
         };
         /**
@@ -32,7 +36,10 @@ var YAxisTransformer = /** @class */ (function () {
          */
         this.allBaseGenStrategy = function (basePowNum) {
             var array = [];
-            [10, 8, 6, 5, 4, 2.5, 2].forEach(function (item) { return array.push(item * basePowNum); });
+            var decimal = AxisHelper.getValidDecimalNum(basePowNum);
+            [10, 8, 6, 5, 4, 2.5, 2].forEach(function (item) {
+                return array.push(AxisHelper.keepDecimalNumber(item * basePowNum, decimal));
+            });
             return array;
         };
         /**
@@ -43,9 +50,11 @@ var YAxisTransformer = /** @class */ (function () {
             if (minData < 0) {
                 base = -base;
             }
-            ;
+            var decimal = AxisHelper.getValidDecimalNum(interval);
             var array = [];
-            [10, 8, 6, 5, 4, 2.5, 2, 0].forEach(function (item) { return array.push(item * base); });
+            [10, 8, 6, 5, 4, 2.5, 2, 0].forEach(function (item) {
+                return array.push(AxisHelper.keepDecimalNumber(item * base, decimal));
+            });
             if (minData < 0) {
                 return array.reverse();
             }
@@ -56,7 +65,10 @@ var YAxisTransformer = /** @class */ (function () {
         this.defaultFormatRuler = function (data, decimal) {
             return data.toFixed(decimal);
         };
-        this.defaultUnitSet = [{ range: 10000, unit: "万" }, { range: 100000000, unit: "亿" }];
+        this.defaultUnitSet = [
+            { range: 10000, unit: "万" },
+            { range: 100000000, unit: "亿" }
+        ];
         this._maxData = -Number.MAX_VALUE;
         this._minData = Number.MAX_VALUE;
         /**
@@ -217,7 +229,7 @@ var YAxisTransformer = /** @class */ (function () {
         var interval;
         var handelMinArray = this.preHandleMin(this._minData, this._maxData);
         var result = this.findInterval(handelMinArray, this._maxData);
-        // 处理最小值 
+        // 处理最小值
         // 找出规整间距
         if (result) {
             this._minData = result.min;
@@ -233,13 +245,15 @@ var YAxisTransformer = /** @class */ (function () {
             unit = AxisHelper.percentUnit;
         }
         else if (keepUnitSame) {
-            unit = unitFollowMax ? this.findUnit(this._maxData) : this.findUnit(this._minData);
+            unit = unitFollowMax
+                ? this.findUnit(this._maxData)
+                : this.findUnit(this._minData);
         }
         // 找出参考值
         var reference = unitFollowMax ? this._maxData : this._minData;
         var min = this._minData;
         var hasDecimal = AxisHelper.isContainDecimal(min) || AxisHelper.isContainDecimal(interval);
-        // 处理小数位数  
+        // 处理小数位数
         adviceDecimal = AxisHelper.getDecimal(hasDecimal, min, reference, interval, unit);
         // 如果没有强制小数位数，使用建议小数位数
         if (!decimal) {
@@ -248,7 +262,7 @@ var YAxisTransformer = /** @class */ (function () {
         }
         var data = [];
         var dataUnit = [];
-        var newDecimal = this.formatDataWithCheck(data, dataUnit, unit, interval, decimal, true);
+        this.formatData(data, dataUnit, unit, interval, decimal);
         return {
             data: data,
             dataUnit: dataUnit,
@@ -258,9 +272,8 @@ var YAxisTransformer = /** @class */ (function () {
             unit: unit
         };
     };
-    YAxisTransformer.prototype.formatDataWithCheck = function (data, dataUnit, unit, interval, decimal, check) {
+    YAxisTransformer.prototype.formatData = function (data, dataUnit, unit, interval, decimal) {
         var _a = this, _count = _a._count, keepUnitSame = _a.keepUnitSame, usePercentUnit = _a.usePercentUnit, formatRuler = _a.formatRuler, keepZeroUnit = _a.keepZeroUnit;
-        var realDecimal = decimal;
         for (var i = 0; i < _count + 1; i++) {
             var result = this._minData + interval * i;
             data.push(result);
@@ -280,15 +293,11 @@ var YAxisTransformer = /** @class */ (function () {
                 result = 0;
                 formatResult = "0";
             }
-            if (check && result != 0 && formatResult !== "0") {
-                realDecimal = Math.min(realDecimal, AxisHelper.getValidDecimalNum(Number(formatResult)));
-            }
             if (result != 0 || keepZeroUnit) {
                 formatResult = formatResult + unit.unit;
             }
             dataUnit.push(formatResult);
         }
-        return realDecimal;
     };
     YAxisTransformer.prototype.sortUnitSet = function () {
         var unitSet = this.unitSet;
@@ -318,6 +327,7 @@ var YAxisTransformer = /** @class */ (function () {
             var minData = item.min;
             var originInterval = (_maxData - minData) / _count;
             var intervals = item.intervals;
+            // @ts-ignore
             var findIndex = intervals.findIndex(function (interval) { return originInterval > interval; });
             if (findIndex < 0) {
                 findIndex = intervals.length;

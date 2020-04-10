@@ -235,6 +235,7 @@ describe('yaxis transform test 12', () => {
   it('test baseGen ', () => {
 
     const array = [
+      {x:70.91, y:72.91},
       {x:30.9, y:108},
       {x:0.363, y:0.667},
       {x:0.34, y:0.439}, 

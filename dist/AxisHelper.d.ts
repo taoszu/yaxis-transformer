@@ -49,6 +49,12 @@ export declare function decimalToInt(data: number): number;
 export declare function isContainDecimal(data: number): boolean;
 export declare function isContainInt(data: number): boolean;
 export declare function getValidDecimalNum(value: number): number;
+/**
+ * 保存data的小数位数和decimal一致
+ * @param data
+ * @param decimal
+ */
+export declare function keepDecimalNumber(data: number, decimal: number): number;
 export declare function keepValidDecimal(data: string): number;
 /**
  * 大致思路就是为了获取最小的数
